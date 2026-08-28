@@ -1,28 +1,21 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
+  beforeLoad: () => {
+    throw redirect({ to: "/control" });
+  },
   head: () => ({
     meta: [
-      { title: "עצור בצד" },
-      { name: "description", content: "דף פשוט עם ההודעה: עצור בצד" },
-      { property: "og:title", content: "עצור בצד" },
-      { property: "og:description", content: "דף פשוט עם ההודעה: עצור בצד" },
+      { title: "עצור בצד · מערכת משחק" },
+      { name: "description", content: "אב טיפוס מערכת המשחק לתוכנית עצור בצד / PULL OVER." },
+      { property: "og:title", content: "עצור בצד · מערכת משחק" },
+      {
+        property: "og:description",
+        content: "אב טיפוס מערכת המשחק לתוכנית עצור בצד / PULL OVER.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: Index,
+  component: () => null,
 });
-
-function Index() {
-  return (
-    <main
-      dir="rtl"
-      className="flex min-h-screen items-center justify-center bg-background px-6"
-    >
-      <h1 className="text-5xl font-bold tracking-tight text-foreground sm:text-7xl">
-        עצור בצד
-      </h1>
-    </main>
-  );
-}
