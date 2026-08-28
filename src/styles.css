@@ -142,3 +142,105 @@
     color: var(--color-foreground);
   }
 }
+
+/* ============ PULL OVER / עצור בצד — broadcast design system ============ */
+
+:root {
+  /* asphalt / charcoal broadcast palette */
+  --po-asphalt: oklch(0.19 0.008 250);
+  --po-asphalt-deep: oklch(0.13 0.008 250);
+  --po-steel: oklch(0.28 0.01 250);
+  --po-steel-line: oklch(0.42 0.012 250);
+  --po-glass: oklch(0.32 0.012 250 / 55%);
+  --po-white: oklch(0.985 0 0);
+  --po-amber: oklch(0.79 0.16 74);
+  --po-red: oklch(0.58 0.2 27);
+  --po-green: oklch(0.72 0.16 152);
+}
+
+@theme inline {
+  --color-po-asphalt: var(--po-asphalt);
+  --color-po-asphalt-deep: var(--po-asphalt-deep);
+  --color-po-steel: var(--po-steel);
+  --color-po-steel-line: var(--po-steel-line);
+  --color-po-white: var(--po-white);
+  --color-po-amber: var(--po-amber);
+  --color-po-red: var(--po-red);
+  --color-po-green: var(--po-green);
+}
+
+.po-stage {
+  background:
+    radial-gradient(120% 80% at 50% 0%, oklch(0.26 0.012 250) 0%, transparent 60%),
+    var(--po-asphalt-deep);
+}
+
+/* faint roadway lane markings across the table surface */
+.po-road-lines {
+  background-image: repeating-linear-gradient(
+    90deg,
+    oklch(1 0 0 / 6%) 0 2px,
+    transparent 2px 120px
+  );
+  mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
+}
+
+.po-panel {
+  background: linear-gradient(180deg, oklch(0.3 0.01 250) 0%, oklch(0.22 0.01 250) 100%);
+  border: 1px solid var(--po-steel-line);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 8%),
+    0 18px 40px oklch(0 0 0 / 45%);
+}
+
+.po-panel-correct {
+  background: linear-gradient(180deg, oklch(0.36 0.05 152) 0%, oklch(0.24 0.04 152) 100%);
+  border-color: var(--po-green);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 14%),
+    0 0 0 2px oklch(0.72 0.16 152 / 35%),
+    0 24px 60px oklch(0 0 0 / 50%);
+}
+
+@keyframes po-confirm-pulse {
+  0%, 100% { box-shadow: inset 0 1px 0 oklch(1 0 0 / 14%), 0 0 0 2px oklch(0.72 0.16 152 / 30%); }
+  50% { box-shadow: inset 0 1px 0 oklch(1 0 0 / 20%), 0 0 0 8px oklch(0.72 0.16 152 / 22%); }
+}
+.po-confirm { animation: po-confirm-pulse 1.6s ease-in-out infinite; }
+
+/* the blade arm sweeping over a single answer lane */
+@keyframes po-blade-sweep {
+  0% { transform: rotate(58deg); }
+  55% { transform: rotate(-58deg); }
+  100% { transform: rotate(58deg); }
+}
+.po-blade { animation: po-blade-sweep 1.5s cubic-bezier(0.55, 0.05, 0.35, 1) forwards; }
+
+/* content erased as the blade passes: clip from right (RTL) to left */
+@keyframes po-wipe-content {
+  0% { clip-path: inset(0 0 0 0); opacity: 1; }
+  10% { clip-path: inset(0 0 0 0); }
+  55% { clip-path: inset(0 0 0 100%); opacity: 1; }
+  100% { clip-path: inset(0 0 0 100%); opacity: 0; }
+}
+.po-wipe-content { animation: po-wipe-content 1.5s cubic-bezier(0.55, 0.05, 0.35, 1) forwards; }
+
+/* wet smear left behind the blade */
+@keyframes po-smear {
+  0% { opacity: 0; }
+  20% { opacity: 0.55; }
+  100% { opacity: 0; }
+}
+.po-smear { animation: po-smear 1.6s ease-out forwards; }
+
+@keyframes po-rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.po-rise { animation: po-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes po-beacon {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.15; }
+}
+.po-beacon { animation: po-beacon 0.9s steps(1, end) infinite; }
