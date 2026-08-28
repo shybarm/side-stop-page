@@ -9,6 +9,8 @@ export interface AnswerLaneProps {
   wipeSeq: number;
   /** compact rendering for the operator preview monitor */
   compact?: boolean;
+  /** placeholder frame when no question is on air */
+  empty?: boolean;
 }
 
 export function AnswerLane({
@@ -18,65 +20,62 @@ export function AnswerLane({
   isCorrect,
   wipeSeq,
   compact = false,
+  empty = false,
 }: AnswerLaneProps) {
   const wiping = phase === "wiping" && !isCorrect;
   const wiped = phase === "revealed" && !isCorrect;
   const confirmed = phase === "revealed" && isCorrect;
 
+  if (empty) {
+    return (
+      <div
+        className={[
+          "h-full w-full border border-dashed border-po-steel-line/40",
+          compact ? "rounded-md" : "rounded-xl",
+        ].join(" ")}
+      />
+    );
+  }
+
   return (
     <div
       className={[
-        "relative flex-1 overflow-hidden",
-        compact ? "rounded-md" : "rounded-2xl",
+        "relative h-full w-full overflow-hidden",
+        compact ? "rounded-md" : "rounded-xl",
         confirmed ? "po-panel-correct po-confirm" : "po-panel",
         wiped ? "opacity-0" : "opacity-100",
         "transition-opacity duration-500",
       ].join(" ")}
     >
-      {/* lane number strip */}
-      <div
+      {/* subtle answer identifier */}
+      <span
         className={[
-          "absolute inset-y-0 right-0 flex items-center justify-center",
-          compact ? "w-6" : "w-20",
+          "absolute font-bold tabular-nums",
+          compact ? "right-1 top-0.5 text-[6px]" : "right-4 top-3 text-base",
+          confirmed ? "text-po-green" : "text-po-white/35",
         ].join(" ")}
-        style={{ background: "oklch(0 0 0 / 25%)" }}
       >
-        <span
-          className={[
-            "font-black tabular-nums",
-            compact ? "text-[10px]" : "text-4xl",
-            confirmed ? "text-po-green" : "text-po-white/70",
-          ].join(" ")}
-        >
-          {letter}
-        </span>
-      </div>
+        {letter}
+      </span>
 
       <div
         key={`content-${wipeSeq}-${letter}`}
         className={[
-          "flex h-full items-center",
-          compact ? "pr-7 pl-2" : "pr-24 pl-8",
+          "flex h-full w-full items-center justify-center text-center",
+          compact ? "px-2" : "px-8",
           wiping ? "po-wipe-content" : "",
           wiped ? "invisible" : "",
         ].join(" ")}
       >
         <span
           className={[
-            "font-bold leading-tight text-po-white",
-            compact ? "text-[10px]" : "text-3xl md:text-4xl xl:text-5xl",
+            "font-black leading-tight text-po-white",
+            compact ? "text-[9px]" : "text-3xl md:text-4xl xl:text-5xl",
           ].join(" ")}
         >
           {text}
         </span>
       </div>
-
-      {confirmed && !compact && (
-        <div
-          className="absolute inset-x-0 bottom-0 h-1"
-          style={{ background: "var(--po-green)" }}
-        />
-      )}
 
       <VirtualWiper seq={wipeSeq} active={wiping && !compact} />
     </div>
