@@ -1,38 +1,16 @@
 import { AnswerLane } from "./AnswerLane";
-import { ANSWER_KEYS, answerOf, type GameState, type Question } from "@/lib/pullover/types";
-
-interface GameDisplayProps { state: GameState; question: Question | undefined; total: number; compact?: boolean; }
-
-export function GameDisplay({ state, question, total, compact = false }: GameDisplayProps) {
-  const { phase, wipeSeq, questionIndex, lockedAnswer } = state;
-  const answersVisible = phase !== "idle" && phase !== "intro";
-  const showAnswers = Boolean(question) && answersVisible;
-  const renderAnswer = (key: (typeof ANSWER_KEYS)[number]) => (
-    <AnswerLane key={key} letter={key} text={question ? answerOf(question, key) : ""} phase={phase}
-      isCorrect={question?.correctAnswer === key} isContestantChoice={lockedAnswer === key}
-      wipeSeq={wipeSeq} compact={compact} empty={!showAnswers} />
-  );
-
-  return (
-    <div dir="rtl" className={["po-stage relative flex h-full w-full flex-col overflow-hidden", compact ? "gap-1 p-1.5" : "gap-3 p-6 md:p-10"].join(" ")}>
-      <div className="po-road-lines pointer-events-none absolute inset-0" />
-      <header className="relative flex shrink-0 items-center justify-center">
-        <div className={["flex items-center border border-po-steel-line", compact ? "gap-1 rounded px-1.5 py-0.5" : "gap-3 rounded-full px-5 py-1.5"].join(" ")} style={{ background: "var(--po-glass)" }}>
-          <span className={["rounded-full", compact ? "h-1 w-1" : "h-2.5 w-2.5", phase === "wiping" ? "po-beacon" : ""].join(" ")} style={{ background: "var(--po-red)" }} />
-          <span className={["font-black tracking-[0.3em] text-po-white", compact ? "text-[7px]" : "text-base"].join(" ")}>עצור בצד</span>
-          <span className={["font-semibold tracking-[0.25em] text-po-amber", compact ? "text-[6px]" : "text-[11px]"].join(" ")}>PULL OVER</span>
-        </div>
-        {!compact && total > 0 && <span dir="ltr" className="absolute left-0 font-mono text-sm tabular-nums text-po-white/40">{questionIndex + 1} / {total}</span>}
-      </header>
-
-      <div className={["relative grid min-h-0 flex-1", compact ? "gap-1" : "gap-3 md:gap-4"].join(" ")} style={{ gridTemplateRows: "1fr auto 1fr" }}>
-        <div className={["grid min-h-0 grid-cols-2", compact ? "gap-1" : "gap-3 md:gap-4"].join(" ")}>{ANSWER_KEYS.slice(0, 2).map(renderAnswer)}</div>
-        <div className={["relative flex items-center justify-center border-y text-center", compact ? "min-h-[18px] px-2 py-1" : "min-h-[18%] px-10 py-6"].join(" ")} style={{ background: "linear-gradient(180deg, oklch(0.24 0.01 250), oklch(0.16 0.01 250))", borderColor: "var(--po-steel-line)" }}>
-          {phase === "idle" || !question ? <span className={["font-black tracking-[0.4em] text-po-white/25", compact ? "text-[8px]" : "text-2xl"].join(" ")}>ממתין לשאלה</span> :
-            <h1 key={`q-${question.id}`} className={["po-rise font-black leading-tight text-po-white", compact ? "text-[9px]" : "text-3xl md:text-4xl xl:text-5xl"].join(" ")}>{question.text}</h1>}
-        </div>
-        <div className={["grid min-h-0 grid-cols-2", compact ? "gap-1" : "gap-3 md:gap-4"].join(" ")}>{ANSWER_KEYS.slice(2, 4).map(renderAnswer)}</div>
-      </div>
-    </div>
-  );
-}
+import { activeAnswerKeys,answerOf,TOTAL_GAME_QUESTIONS,type AnswerKey,type GameState,type Question } from "@/lib/pullover/types";
+interface GameDisplayProps{state:GameState;question:Question|undefined;total:number;compact?:boolean}
+export function GameDisplay({state,question,compact=false}:GameDisplayProps){
+ const{phase,wipeSeq,questionIndex,lockedAnswer}=state;if(phase==="progress")return <ProgressScreen completed={questionIndex+1} compact={compact}/>;
+ const keys=activeAnswerKeys(questionIndex),showAnswers=Boolean(question)&&!["idle","intro"].includes(phase);
+ const lane=(key:AnswerKey)=><AnswerLane key={key} letter={key} text={question?answerOf(question,key):""} phase={phase} isCorrect={question?.correctAnswer===key} isContestantChoice={lockedAnswer===key} wipeSeq={wipeSeq} compact={compact} empty={!showAnswers}/>;
+ const top=keys.length===2?keys:keys.slice(0,2),bottom=keys.length===2?[]:keys.slice(2);
+ return <div dir="rtl" className={["po-stage relative flex h-full w-full flex-col overflow-hidden",compact?"gap-1 p-1.5":"gap-3 p-6 md:p-10"].join(" ")}><div className="po-road-lines pointer-events-none absolute inset-0"/><header className="relative flex shrink-0 items-center justify-center"><ShowMark compact={compact}/>{!compact&&<span dir="ltr" className="absolute left-0 font-mono text-sm text-po-white/40">{questionIndex+1} / 7</span>}</header>
+ <div className={["relative grid min-h-0 flex-1",compact?"gap-1":"gap-3 md:gap-4"].join(" ")} style={{gridTemplateRows:bottom.length?"1fr auto 1fr":"1fr auto 1fr"}}>
+  <div className={["grid min-h-0",top.length===1?"grid-cols-1":"grid-cols-2",compact?"gap-1":"gap-3 md:gap-4"].join(" ")}>{top.map(lane)}</div>
+  <div className={["relative flex items-center justify-center border-y text-center",compact?"min-h-[18px] px-2 py-1":"min-h-[18%] px-10 py-6"].join(" ")} style={{background:"oklch(0.17 0.01 250)",borderColor:"var(--po-steel-line)"}}>{phase==="idle"||!question?<span className={compact?"text-[8px] text-po-white/25":"text-2xl font-black text-po-white/25"}>ממתין לשאלה</span>:<h1 className={["po-rise font-black leading-tight text-po-white",compact?"text-[9px]":"text-3xl md:text-4xl xl:text-5xl"].join(" ")}>{question.text}</h1>}</div>
+  <div className={["grid min-h-0",bottom.length===1?"grid-cols-1":"grid-cols-2",compact?"gap-1":"gap-3 md:gap-4"].join(" ")}>{bottom.map(lane)}</div>
+ </div></div>}
+function ShowMark({compact=false}:{compact?:boolean}){return <div className={["flex items-center border border-po-steel-line bg-black/30",compact?"gap-1 rounded px-1.5":"gap-3 rounded-full px-5 py-1.5"].join(" ")}><span className={["rounded-full bg-po-red",compact?"h-1 w-1":"h-2.5 w-2.5"].join(" ")}/><span className={["font-black text-po-white",compact?"text-[7px]":"text-base tracking-[0.3em]"].join(" ")}>עצור בצד</span></div>}
+function ProgressScreen({completed,compact}:{completed:number;compact:boolean}){const pct=Math.min(completed,7)/7*100;return <div dir="rtl" className="po-stage relative flex h-full w-full flex-col items-center justify-center overflow-hidden p-6 text-po-white"><div className="po-road-lines absolute inset-0 opacity-40"/><div className="relative z-10 flex w-full max-w-5xl flex-col items-center"><div className={["font-black tracking-[0.12em]",compact?"text-[11px]":"text-5xl md:text-7xl"].join(" ")}>עצור <span className="text-po-amber">בצד</span></div><div className={["font-bold text-po-white/55",compact?"mt-1 text-[6px]":"mt-3 text-lg tracking-[0.45em]"].join(" ")}>הדרך אל הרכב</div><div className={["relative w-full",compact?"mt-3":"mt-14"]}><div className={["absolute left-[4%] right-[4%] top-1/2 -translate-y-1/2 rounded-full bg-po-steel",compact?"h-1":"h-3"].join(" ")}><div className="h-full rounded-full bg-po-amber transition-all duration-700" style={{width:`${pct}%`}}/></div><div className="relative flex justify-between">{Array.from({length:7},(_,i)=>{const done=i<completed,current=i===completed;return <div key={i} className="flex flex-col items-center"><div className={["flex items-center justify-center rounded-full border-2 font-black",compact?"h-4 w-4 text-[6px]":"h-14 w-14 text-xl",done?"border-po-amber bg-po-amber text-po-asphalt-deep":current?"border-po-white bg-po-asphalt text-po-white":"border-po-steel-line bg-po-asphalt text-po-white/35"].join(" ")}>{i+1}</div>{!compact&&<span className="mt-2 text-xs font-bold text-po-white/45">{i===6?"הרכב":`שאלה ${i+1}`}</span>}</div>})}</div></div>{!compact&&<div className="mt-12 text-center"><div className="text-2xl font-black">{completed>=7?"הגעתם לרכב!":`${completed} מתוך 7 מאחוריכם`}</div><div className="mt-2 text-base text-po-white/55">{completed<7?`עוד ${7-completed} ${7-completed===1?"שאלה":"שאלות"} עד הרכב`:"זה הרגע הגדול"}</div></div>}</div></div>}
