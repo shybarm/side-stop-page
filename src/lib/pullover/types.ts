@@ -17,8 +17,8 @@ export interface Question {
  * Broadcast phases of the show.
  * idle      – nothing on air (bumper / show mark only)
  * intro     – question rising on screen, answers hidden
- * answers   – all four answers on air, equally neutral
- * locked    – answers locked, no more play
+ * answers   – all four answers on air; operator records contestant choice
+ * locked    – contestant answer is locked, no more changes
  * wiping    – wipers physically sweeping the wrong answers
  * revealed  – only the correct answer remains, confirmed
  */
@@ -27,6 +27,8 @@ export type GamePhase = "idle" | "intro" | "answers" | "locked" | "wiping" | "re
 export interface GameState {
   phase: GamePhase;
   questionIndex: number;
+  /** contestant answer selected by Q; becomes final once phase is locked */
+  lockedAnswer: AnswerKey | null;
   /** increments on every wiper trigger so displays can restart animations */
   wipeSeq: number;
   updatedAt: number;
@@ -35,8 +37,8 @@ export interface GameState {
 export const PHASE_LABEL: Record<GamePhase, string> = {
   idle: "ממתין",
   intro: "שאלה באוויר",
-  answers: "תשובות באוויר",
-  locked: "נעול",
+  answers: "ממתין לבחירת מתמודד",
+  locked: "תשובת מתמודד נעולה",
   wiping: "מגבים פועלים",
   revealed: "תשובה נחשפה",
 };
