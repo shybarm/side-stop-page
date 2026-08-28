@@ -133,7 +133,7 @@ export function parseCSV(text: string): Question[] {
     .split("\n")
     .filter((l) => l.trim().length > 0);
   if (lines.length === 0) return [];
-  const header = splitCsvLine(lines[0]).map((h) => h.toLowerCase());
+  const header = splitCsvLine(lines[0] ?? "").map((h) => h.toLowerCase());
   const hasHeader = header.includes("question") || header.includes("answera");
   const rows = hasHeader ? lines.slice(1) : lines;
   const idx = (name: string, fallback: number) => {
