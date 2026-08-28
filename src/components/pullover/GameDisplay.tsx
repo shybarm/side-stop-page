@@ -61,7 +61,7 @@ export function GameDisplay({ state, question, total, compact = false }: GameDis
           </span>
         </div>
         {!compact && total > 0 && (
-          <span className="absolute left-0 font-mono text-sm tabular-nums text-po-white/40">
+          <span dir="ltr" className="absolute left-0 font-mono text-sm tabular-nums text-po-white/40">
             {questionIndex + 1} / {total}
           </span>
         )}

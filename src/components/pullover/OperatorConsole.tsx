@@ -63,7 +63,7 @@ export function OperatorConsole() {
         </div>
 
         <span className="font-mono text-sm tabular-nums text-po-white/60">
-          שאלה {questions.length ? state.questionIndex + 1 : 0} / {questions.length}
+          שאלה <span dir="ltr">{questions.length ? state.questionIndex + 1 : 0} / {questions.length}</span>
         </span>
 
         <div className="ms-auto flex items-center gap-2">
