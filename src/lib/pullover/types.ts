@@ -9,3 +9,4 @@ export interface GameState { phase:GamePhase; questionIndex:number; questionOrde
 export const DEFAULT_QUESTION_ORDER=[0,1,2,3,4,5,6];
 export const PHASE_LABEL:Record<GamePhase,string>={idle:"ממתין",intro:"שאלה באוויר",answers:"ממתין לנעילה",locked:"הלוח נעול",wiping:"חשיפת תשובה",revealed:"תשובה נחשפה",transition:"מעבר",progress:"התקדמות לרכב"};
 export function answerOf(q:Question,key:AnswerKey):string{return key==="A"?q.answerA:key==="B"?q.answerB:key==="C"?q.answerC:q.answerD;}
+export const HE_LETTER: Record<AnswerKey, string> = { A: "א", B: "ב", C: "ג", D: "ד" };
