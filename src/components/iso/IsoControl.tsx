@@ -46,7 +46,7 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
   const keys = activeAnswerKeys(st?.questionIndex ?? 0), phase = st?.phase ?? "idle";
   const locked = Boolean(iso?.locked_snapshot), revealed = REVEAL.has(phase) || Boolean(iso?.resolved);
   // Mirror the game board: question from "intro", answers from "answers" — never earlier.
-  const showQ = Boolean(q) && phase !== "idle", showA = showQ && phase !== "intro";
+  const showA = Boolean(q) && phase !== "idle", showQ = showA && phase !== "intro";
   useEffect(() => { setUndo([]); setSelected(null); }, [key]);
   if (snap?.role && snap.role !== "director" && snap.role !== "game") return <div className="p-10 text-po-red">מפתח לקריאה בלבד</div>;
   const plates = snap?.plates ?? [], byId = new Map(plates.map((p) => [p.id, p]));
@@ -120,7 +120,7 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
               <DirectorTimer phase={phase} start={st?.timerStartedAtServer ?? null} duration={st?.timerDurationMs ?? 60000} serverNow={serverNow} />
             </div>
             {locked && <div className="mt-2 text-sm font-bold text-po-amber">הלוח נעול — צילום החלוקה נשמר. {correction ? "מצב תיקון פעיל." : "גרירה חסומה."}</div>}
-            {showQ && !showA && <div className="mt-2 text-sm text-po-white/50">התשובות יוצגו כשמחשב המשחק יציג אותן.</div>}
+            {showA && !showQ && <div className="mt-2 text-sm text-po-white/50">התשובות באוויר — השאלה תוצג כשמחשב המשחק יעלה אותה.</div>}
           </div>
           <div className={["grid gap-3", keys.length === 4 ? "sm:grid-cols-2" : keys.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"].join(" ")}>
             {showA && q && keys.map((k) => {

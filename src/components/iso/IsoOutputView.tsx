@@ -28,8 +28,10 @@ export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot |
   const plates = snap?.plates ?? [];
   const revealed = REVEAL.has(phase), correct = (snap?.iso?.correct_answer ?? (revealed ? q?.correctAnswer : null)) as AnswerKey | null;
   // Mirror the game board: it shows the question from "intro", answers from "answers", and a full-screen transition afterwards.
+  // Answers go up first ("intro"), then the question ("answers" phase onwards).
   const showQ = Boolean(q?.text) && !["idle", "transition", "progress"].includes(phase);
-  const showA = showQ && phase !== "intro";
+  const showQText = showQ && phase !== "intro";
+  const showA = showQ;
   const locked = phase === "locked" || Boolean(snap?.iso?.locked_snapshot && !revealed);
   const box = layout ?? layoutOf(snap?.layout).current;
   const width = ROW_WIDTH[keys.length] ?? 92;
