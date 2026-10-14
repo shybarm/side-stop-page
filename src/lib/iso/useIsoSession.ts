@@ -43,21 +43,22 @@ export function useIsoSession(code: string | null, key: string | null) {
   useEffect(() => {
     if (!code || !key) return;
     let closed = false, ch: ReturnType<typeof supabase.channel> | null = null, reT = 0 as any;
-    const subscribe = () => {
+    const subscribe = async () => {
       if (closed) return;
       const old = ch; ch = null;
-      if (old) void supabase.removeChannel(old);
+      if (old) await supabase.removeChannel(old).catch(() => {});
+      if (closed) return;
       const mine = supabase.channel(`iso:${code.toUpperCase()}`).on("broadcast", { event: "v" }, () => void refresh());
       ch = mine;
       mine.subscribe((st) => {
           if (closed || ch !== mine) return; // ignore the replaced channel's own CLOSED event
           setConn((c) => ({ ...c, live: st === "SUBSCRIBED" }));
           if (st === "SUBSCRIBED") void refresh(); // catch anything missed while (re)connecting
-          if (st === "CHANNEL_ERROR" || st === "TIMED_OUT" || st === "CLOSED") { clearTimeout(reT); reT = setTimeout(subscribe, 2000); }
+          if (st === "CHANNEL_ERROR" || st === "TIMED_OUT" || st === "CLOSED") { clearTimeout(reT); reT = setTimeout(() => void subscribe(), 2000); }
         });
     };
     void refresh();
-    subscribe();
+    void subscribe();
     const t = setInterval(() => void refresh(), 3000);
     const on = () => void refresh();
     window.addEventListener("online", on); window.addEventListener("focus", on);
