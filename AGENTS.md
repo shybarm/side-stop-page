@@ -16,3 +16,4 @@
 - Realtime is used only as a "version changed" ping (`realtime.send` on topic `iso:<CODE>`); clients always refetch the latest full snapshot, with polling as fallback.
 - Each airing of a question gets its own ISO key (`slot:questionId:airedAt`), so re-running a slot never reuses an old lock/reveal state; critical events are deduped by client event ID, not gated by sequence.
 - ISO graphics position/scale lives in `game_sessions.layout` (director-only via `iso_set_layout`), separate from plates and timer; the director's test photo stays a local object URL and is never uploaded or logged.
+- "New game" bumps `gameId` in local state; the publisher queues a durable `new_game` event that restores all plates server-side before the new airing pool is built. The password is only an accidental-click guard, not security.
