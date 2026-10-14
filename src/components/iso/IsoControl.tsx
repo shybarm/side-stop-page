@@ -102,14 +102,14 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
         onDragStart={(e) => e.dataTransfer.setData("text/plate", p.id)}
         onClick={(e) => { e.stopPropagation(); if (canDrag && !out) setSelected(selected === p.id ? null : p.id); }}
         className={["rounded-md p-0.5", selected === p.id ? "ring-2 ring-po-amber" : "", canDrag && !out ? "cursor-grab" : "cursor-not-allowed"].join(" ")} aria-label="שלט">
-        <PlateChip plate={p} size="lg" dim={out} />
+        <PlateChip plate={p} size="md" dim={out} />
       </button>
     );
   };
 
   return (
     <div dir="rtl" className="min-h-screen bg-po-asphalt-deep text-po-white">
-      <header className="flex flex-wrap items-center gap-4 border-b border-po-steel-line bg-po-asphalt px-6 py-3">
+      <header className="flex flex-wrap items-center gap-3 border-b border-po-steel-line bg-po-asphalt px-4 py-2">
         <b>עצור בצד</b><span className="text-xs text-po-amber">ISO CONTROL</span>
         <span dir="ltr" className="font-mono text-sm">{creds.code}</span>
         <Light ok={conn.online} label={conn.online ? `מסונכרן · ${Math.max(0, Math.round((now - (conn.lastOkAt ?? now)) / 1000))}ש׳` : "מנותק מהשרת"} />
@@ -120,13 +120,13 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
         <button onClick={onLeave} className="ms-auto rounded border px-3 py-1.5 text-xs">החלף סשן</button>
       </header>
       {(stale || gameDown) && <div className="bg-po-red px-6 py-2 text-center font-black">{stale ? "אזהרה: אין סנכרון עם השרת — המצב המוצג אינו עדכני" : "אזהרה: אין דופק ממחשב המשחק — ייתכן שהמצב אינו עדכני"}</div>}
-      <div className="grid gap-6 p-6 xl:grid-cols-[1fr_420px]">
+      <div className="grid gap-4 p-4 xl:grid-cols-[1fr_400px]">
         <section className="space-y-4">
-          <div className="rounded-xl border border-po-steel-line bg-po-asphalt p-5">
+          <div className="rounded-xl border border-po-steel-line bg-po-asphalt p-3">
             <div className="flex items-start gap-4">
               <div className="min-w-0 flex-1">
                 <small className="text-po-white/40">שאלה נוכחית</small>
-                <h2 className="text-2xl font-black">{showQ ? q?.text : "ממתין לשאלה ממחשב המשחק"}</h2>
+                <h2 className="text-xl font-black">{showQ ? q?.text : "ממתין לשאלה ממחשב המשחק"}</h2>
               </div>
               <DirectorTimer phase={phase} start={st?.timerStartedAtServer ?? null} duration={st?.timerDurationMs ?? 60000} serverNow={serverNow} />
             </div>
@@ -137,16 +137,16 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
             {showA && q && keys.map((k) => {
               const on = pool.filter((p) => placements[p.id] === k), isC = revealed && (iso?.correct_answer ?? null) === k, isW = revealed && iso?.correct_answer && iso.correct_answer !== k;
               return (
-                <div key={k} {...drop(k)} className={["po-dropzone min-h-40 rounded-xl border p-4", isC ? "po-panel-correct" : isW ? "po-panel-wrong" : locked ? "po-panel-locked" : "po-panel", selected ? "cursor-pointer" : ""].join(" ")}>
+                <div key={k} {...drop(k)} className={["po-dropzone min-h-24 rounded-xl border p-3", isC ? "po-panel-correct" : isW ? "po-panel-wrong" : locked ? "po-panel-locked" : "po-panel", selected ? "cursor-pointer" : ""].join(" ")}>
                   <div className="flex items-center gap-2"><b className="flex h-7 w-7 items-center justify-center rounded bg-po-steel text-sm">{HE_LETTER[k]}</b><span className="font-black">{answerOf(q, k)}</span>{q.correctAnswer === k && <small className="ms-auto text-po-green">נכונה</small>}</div>
-                  <div className="mt-3 flex flex-wrap gap-2">{on.map(chip)}</div>
+                  <div className="mt-2 flex flex-wrap gap-1.5">{on.map(chip)}</div>
                 </div>
               );
             })}
           </div>
-          <div {...drop(null)} className="po-dropzone rounded-xl border border-dashed border-po-steel-line bg-po-asphalt p-4">
-            <div className="mb-2 flex items-center gap-2 text-xs text-po-white/50">מאגר השלטים {plateMoves.pending > 0 && <span role="status" className="text-po-amber">שומר {plateMoves.pending}…</span>}</div>
-            <div className="flex min-h-12 flex-wrap gap-2">{unplaced.map(chip)}{!unplaced.length && <span className="text-sm text-po-white/30">כל השלטים הוקצו</span>}</div>
+          <div {...drop(null)} className="po-dropzone rounded-xl border border-dashed border-po-steel-line bg-po-asphalt p-3">
+            <div className="mb-1 flex items-center gap-2 text-xs text-po-white/50">מאגר השלטים {plateMoves.pending > 0 && <span role="status" className="text-po-amber">שומר {plateMoves.pending}…</span>}</div>
+            <div className="flex min-h-9 flex-wrap gap-1.5">{unplaced.map(chip)}{!unplaced.length && <span className="text-sm text-po-white/30">כל השלטים הוקצו</span>}</div>
           </div>
           {unplaced.length > 0 && q && <Alert>{unplaced.length} שלטים עדיין לא הוקצו לתשובה. {revealed ? "הם ממתינים להשלמת מיקום." : ""}</Alert>}
           {pendingOld.map((p) => {
@@ -157,13 +157,13 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
           <IsoLayoutPanel snap={snap} serverNow={serverNow} creds={creds} onSaved={() => void refresh()} />
         </section>
         <aside className="space-y-3">
-          <button onClick={() => void doUndo()} disabled={!undo.length || busy || !canDrag} className="h-14 w-full rounded-xl border border-po-steel-line bg-po-steel text-lg font-bold disabled:opacity-30">בטל פעולה אחרונה</button>
-          <div className={["rounded-xl border p-4", correction ? "border-po-amber bg-po-amber/10" : "border-po-steel-line bg-po-asphalt"].join(" ")}>
+          <button onClick={() => void doUndo()} disabled={!undo.length || busy || !canDrag} className="h-10 w-full rounded-xl border border-po-steel-line bg-po-steel text-base font-bold disabled:opacity-30">בטל פעולה אחרונה</button>
+          <div className={["rounded-xl border p-3", correction ? "border-po-amber bg-po-amber/10" : "border-po-steel-line bg-po-asphalt"].join(" ")}>
             <label className="flex items-center gap-2 font-black"><input type="checkbox" checked={correction} onChange={(e) => setCorrection(e.target.checked)} />מצב תיקון מפעיל</label>
             <p className="mt-1 text-xs text-po-white/50">לתיקון חלוקה אחרי נעילה או חשיפה, ולתיקון סטטוס שלט. כל פעולה נרשמת ביומן.</p>
             {correction && <div className="mt-3 space-y-1.5">{plates.map((p) => <div key={p.id} className="flex items-center gap-2 text-sm"><PlateChip plate={p} size="sm" dim={p.status === "eliminated"} /><span className="flex-1 text-po-white/70">{p.status === "active" ? "פעיל" : p.status === "eliminated" ? "יצא מהמשחק" : "ממתין להשלמה"}</span>{p.status !== "eliminated" ? <button onClick={() => void status(p.id, "eliminated")} className="rounded border border-po-red px-2 text-xs text-po-red">סמן כיצא</button> : <button onClick={() => void status(p.id, "active")} className="rounded border border-po-green px-2 text-xs text-po-green">החזר למשחק</button>}</div>)}</div>}
           </div>
-          <div className="rounded-xl border border-po-steel-line bg-po-asphalt p-4 text-sm">
+          <div className="rounded-xl border border-po-steel-line bg-po-asphalt p-3 text-sm">
             <div className="mb-2 font-black">שלטים בסשן</div>
             <div className="flex flex-wrap gap-3">{plates.map((p) => <span key={p.id} className="flex items-center gap-1"><PlateChip plate={p} size="sm" dim={p.status === "eliminated"} />{p.status === "pending" && <i className="text-po-amber">!</i>}</span>)}</div>
             <div className="mt-2 text-xs text-po-white/40">פעילים {plates.filter((p) => p.status === "active").length} · יצאו {plates.filter((p) => p.status === "eliminated").length} · ממתינים {plates.filter((p) => p.status === "pending").length}</div>
@@ -193,7 +193,7 @@ function LogPanel({ creds, version }: { creds: { code: string; key: string }; ve
   return (
     <div className="rounded-xl border border-po-steel-line bg-po-asphalt p-4">
       <div className="mb-2 flex items-center"><b className="text-sm">יומן פעולות</b><button onClick={exportLog} className="ms-auto rounded border px-2 py-0.5 text-xs">ייצוא JSON</button></div>
-      <div className="max-h-64 space-y-1 overflow-y-auto font-mono text-[11px]">
+      <div className="max-h-44 space-y-1 overflow-y-auto font-mono text-[11px]">
         {[...ev].reverse().slice(0, 80).map((e) => (
           <div key={e.id} className="flex gap-2 border-b border-po-steel-line/30 py-0.5">
             <span className="text-po-white/40">{new Date(e.ts).toLocaleTimeString("he-IL")}</span>
