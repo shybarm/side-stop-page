@@ -74,8 +74,8 @@ body.po-iso-transparent{background:transparent!important}
 .po-iso-answer .po-shield-rubber{width:.65cqh;margin-left:-.325cqh}
 .po-iso-answer .po-shield-pivot{width:1.2cqh;height:1.2cqh;margin-left:-.6cqh;bottom:calc(6% - .6cqh)}
 .po-iso-cleared{visibility:hidden}
-.po-iso-plate-row{position:absolute;inset:auto .8cqw 1cqh;min-height:2.3cqh;display:flex;flex-wrap:wrap;align-content:flex-end;justify-content:center;gap:.5cqh .4cqw;z-index:40;pointer-events:none}
-.po-iso-plate-wrap{position:relative;display:inline-flex;width:5.2cqh;max-width:calc((100% - 1.2cqw)/4);height:2.3cqh;flex-shrink:0}
+.po-iso-plate-row{position:absolute;inset:auto .8cqw 1cqh;min-height:2.3cqh;display:grid;grid-template-columns:repeat(4,minmax(0,5.2cqh));align-content:end;justify-content:center;gap:.5cqh .4cqw;z-index:40;pointer-events:none}
+.po-iso-plate-wrap{position:relative;display:inline-flex;width:100%;height:2.3cqh;flex-shrink:0}
 .po-iso-plate-chip{width:100%;height:100%;border-width:.25cqh}
 .po-iso-plate-gone{visibility:hidden}
 .po-iso-dispersing>.po-plate{animation:po-iso-plate-depart 1.45s .12s var(--iso-soft-ease) both;will-change:transform,opacity}

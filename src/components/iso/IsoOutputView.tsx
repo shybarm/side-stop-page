@@ -54,7 +54,7 @@ export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot |
     <div dir="rtl" className="relative h-full w-full overflow-hidden" style={{ containerType: "size" }}>
       {showQ && (
         <div data-iso-group className="absolute bottom-[3.5%] left-1/2 flex flex-col items-center gap-[1.1cqh]"
-          style={{ width: `${width}%`, transform: `translate(calc(-50% + ${box.x}cqw), ${box.y}cqh) scale(${box.scale})`, transformOrigin: "50% 100%" }}>
+          style={{ width: "92%", transform: `translate(calc(-50% + ${box.x}cqw), ${box.y}cqh) scale(${box.scale})`, transformOrigin: "50% 100%" }}>
           <div key={showQText ? "q" : "noq"} className="po-iso-question-row po-rise flex w-full items-stretch gap-[1cqw]" style={{ visibility: showQText ? "visible" : "hidden" }}>
             <div className="po-logo-lockup flex shrink-0 items-center px-[1.2cqw]"><span className="po-logo-text whitespace-nowrap font-black" style={{ fontSize: "2cqh" }}>עצור <b>בצד</b></span></div>
             <div className="po-question-marquee flex min-w-0 flex-1 flex-col justify-center px-[1.5cqw] py-[0.7cqh]">
@@ -65,7 +65,7 @@ export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot |
             {phase === "timing" && st?.timerStartedAtServer ? <IsoTimer start={st.timerStartedAtServer} duration={st.timerDurationMs ?? 60000} serverNow={serverNow} /> : null}
           </div>
           {showA && (
-            <div className="flex w-full items-stretch gap-[1cqw]">
+            <div className="flex items-stretch gap-[1cqw]" style={{ width: `${width / 92 * 100}%` }}>
               {keys.map((k) => {
                 const scoredPlacements = revealed ? snap?.iso?.locked_snapshot ?? placements : placements;
                 const on = plates.filter((p) => scoredPlacements[p.id] === k);

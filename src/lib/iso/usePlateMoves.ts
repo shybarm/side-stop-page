@@ -41,7 +41,7 @@ export function usePlateMoves(creds: { code: string; key: string }, snap: IsoSna
             try {
               const result = await withTimeout(placePlate({ data: { ...creds, questionKey: task.questionKey, plate: task.plate, target: task.target, expected: version.current.value, correction: task.correction, note: "", undo: task.undo } }), 8000) as { version: number };
               if (version.current.key === task.questionKey) version.current.value = Math.max(version.current.value, result.version);
-              update(items.current.map((m) => m.id === task.id ? { ...m, version: result.version } : m));
+              update(items.current.map((m) => m.id === task.id ? { ...m, version: result.version } : m).filter((m) => m.version === null || m.questionKey !== latest.current?.game?.question_key || m.version > (latest.current?.iso?.version ?? 0)));
               break;
             } catch (e) {
               if ((e as Error).message !== "version_conflict" || attempt >= 2) throw e;
