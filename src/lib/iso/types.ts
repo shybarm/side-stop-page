@@ -25,6 +25,7 @@ export interface IsoSnapshot {
   iso: IsoQuestionState | null;
   role?: "game" | "director" | "output";
   heartbeat_at?: number | null;
+  game_version?: number;
   server_now?: number;
 }
 export interface IsoEvent { id: number; ts: string; kind: string; question_key: string | null; seq: number | null; client_event_id: string | null; data: Record<string, unknown> & { snapshot?: IsoSnapshot } }

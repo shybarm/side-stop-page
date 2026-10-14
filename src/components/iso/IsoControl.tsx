@@ -61,17 +61,12 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
     if (from === target && !opts.qkey) return;
     setBusy(true);
     try {
-      // pending completion of an older question uses that question's version; refetch by passing current snapshot version is not possible, so read it fresh
+      // pending completion of an older question: -1 tells the server to skip the version check for that plate only
       const expected = qkey === key ? iso.version : -1;
-      await placePlate({ data: { code: creds.code, key: creds.key, questionKey: qkey, plate, target, expected: expected === -1 ? await versionOf(qkey) : expected, correction: isCorrection, note: note.trim(), undo: Boolean(opts.undo) } });
+      await placePlate({ data: { code: creds.code, key: creds.key, questionKey: qkey, plate, target, expected, correction: isCorrection, note: note.trim(), undo: Boolean(opts.undo) } });
       if (!opts.undo && qkey === key) setUndo((u) => [...u.slice(-30), { plate, from, key: qkey }]);
     } catch (e) { toast.error(errText(e)); }
     finally { setBusy(false); setSelected(null); void refresh(); }
-  }
-  async function versionOf(qkey: string) {
-    const ev = (await getIsoEvents({ data: creds })) as IsoEvent[];
-    const last = [...ev].reverse().find((e) => e.data?.snapshot?.iso?.question_key === qkey);
-    return last?.data.snapshot?.iso?.version ?? 0;
   }
   async function doUndo() { const u = undo[undo.length - 1]; if (!u || u.key !== key) return; setUndo((x) => x.slice(0, -1)); await move(u.plate, u.from, { undo: true }); }
   async function status(plate: string, s: "active" | "eliminated") {
