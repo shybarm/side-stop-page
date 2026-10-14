@@ -45,7 +45,7 @@ export function IsoLayoutPanel({ snap, serverNow, creds, onSaved }: { snap: IsoS
   const onMove = (e: React.PointerEvent) => {
     const d = drag.current, f = frame.current; if (!d || !f) return;
     const r = f.getBoundingClientRect();
-    setDraft({ ...lay, active: "custom", current: clamp({ ...d.box, x: d.box.x - ((e.clientX - d.x) / r.width) * 100 * -1, y: d.box.y + ((e.clientY - d.y) / r.height) * 100 }) });
+    setDraft({ ...lay, active: "custom", current: clamp({ ...d.box, x: d.box.x + ((e.clientX - d.x) / r.width) * 100, y: d.box.y + ((e.clientY - d.y) / r.height) * 100 }) });
   };
   const onUp = () => { if (drag.current && draft) update(draft, true); drag.current = null; };
 
