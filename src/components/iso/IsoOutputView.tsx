@@ -5,8 +5,9 @@ import { layoutOf, type IsoSnapshot, type LayoutBox, type Plate } from "@/lib/is
 /** A license plate chip: fixed colour, no number or text. "cq" sizes it relative to the output frame. */
 export function PlateChip({ plate, size = "md", dim = false }: { plate: Pick<Plate, "color">; size?: "sm" | "md" | "lg" | "cq"; dim?: boolean }) {
   const s = size === "sm" ? "h-4 w-9" : size === "lg" ? "h-10 w-24" : size === "md" ? "h-7 w-16" : "";
-  const style: Record<string, string> = { ["--plate"]: plate.color };
-  if (size === "cq") { style.height = "2.3cqh"; style.width = "5.2cqh"; style.borderWidth = "0.25cqh"; }
+  const style: React.CSSProperties & Record<string, string> = size === "cq"
+    ? { ["--plate"]: plate.color, height: "2.3cqh", width: "5.2cqh", borderWidth: "0.25cqh" }
+    : { ["--plate"]: plate.color };
   return <span className={["po-plate inline-block shrink-0", s, dim ? "po-plate-out" : ""].join(" ")} style={style} />;
 }
 

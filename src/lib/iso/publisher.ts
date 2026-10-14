@@ -88,7 +88,7 @@ async function flush() {
   const c = p.creds;
   try {
     while (p.queue.length && p.creds === c) {
-      const ev = p.queue[0], last = p.queue.length === 1;
+      const ev = p.queue[0]!, last = p.queue.length === 1;
       // Older events are applied first in order; only the last one carries the latest state.
       if (last) await sendState(c, ev);
       else await send(c, getGameState(), 0, ev);
