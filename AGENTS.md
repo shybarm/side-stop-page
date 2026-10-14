@@ -17,3 +17,5 @@
 - Each airing of a question gets its own ISO key (`slot:questionId:airedAt`), so re-running a slot never reuses an old lock/reveal state; critical events are deduped by client event ID, not gated by sequence.
 - ISO graphics position/scale lives in `game_sessions.layout` (director-only via `iso_set_layout`), separate from plates and timer; the director's test photo stays a local object URL and is never uploaded or logged.
 - "New game" bumps `gameId` in local state; the publisher queues a durable `new_game` event that restores all plates server-side before the new airing pool is built. The password is only an accidental-click guard, not security.
+- Every full reset (including legacy RESET) changes `gameId`; publisher startup reconciles the current game before recording its identity, so offline resets cannot silently skip plate restoration.
+- ISO reveal effects are presentation-only, keyed to a live unrevealed-to-revealed transition of the same airing; refreshed/resumed revealed snapshots render the finished state without replaying eliminations.
