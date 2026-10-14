@@ -13,6 +13,7 @@ export function IsoAnswerPane({ letter, text, plates, locked, correct, wrong, an
       <div className="po-shield-glass" />
       <div className={`po-shield-clean ${wrong ? wiping ? "po-wipe-out" : "po-iso-cleared" : "po-wipe-in"}`}>
         <div className="po-shield-tint" />
+        {locked && !correct && !wrong && <div data-iso-lock-scan className="po-lock-scan absolute inset-0" />}
         <span className="po-shield-letter po-iso-answer-letter">{HE_LETTER[letter]}</span>
         <div className="po-iso-answer-text"><span>{text}</span></div>
         <div className="po-shield-glare" />
