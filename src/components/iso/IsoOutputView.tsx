@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { IsoAnswerPane } from "./IsoAnswerPane";
 // Clean ISO output graphics (lower third), mirroring what the game board shows (answers first, then question).
 import { activeAnswerKeys, answerOf, HE_LETTER, type AnswerKey, type Question } from "@/lib/pullover/types";
 import { layoutOf, type IsoSnapshot, type LayoutBox, type Plate } from "@/lib/iso/types";
@@ -35,6 +36,19 @@ export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot |
   const locked = phase === "locked" || Boolean(snap?.iso?.locked_snapshot && !revealed);
   const box = layout ?? layoutOf(snap?.layout).current;
   const width = ROW_WIDTH[keys.length] ?? 92;
+  const airing = snap?.game?.question_key ?? null;
+  const previous = useRef<{ airing: string | null; revealed: boolean } | null>(null);
+  const [revealAiring, setRevealAiring] = useState<string | null>(null);
+  useEffect(() => {
+    const prev = previous.current;
+    previous.current = { airing, revealed };
+    if (prev?.airing === airing && !prev.revealed && revealed) {
+      setRevealAiring(airing);
+      const t = setTimeout(() => setRevealAiring(null), 1900);
+      return () => clearTimeout(t);
+    }
+    setRevealAiring(null);
+  }, [airing, revealed]);
   return (
     <div dir="rtl" className="relative h-full w-full overflow-hidden" style={{ containerType: "size" }}>
       {showQ && (
@@ -52,19 +66,11 @@ export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot |
           {showA && (
             <div className="flex w-full items-stretch gap-[1cqw]">
               {keys.map((k) => {
-                const on = plates.filter((p) => placements[p.id] === k);
+                const scoredPlacements = revealed ? snap?.iso?.locked_snapshot ?? placements : placements;
+                const on = plates.filter((p) => scoredPlacements[p.id] === k);
                 const isCorrect = revealed && correct === k, isWrong = revealed && correct && correct !== k;
                 return (
-                  <div key={k} className={["po-rise relative flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border transition-colors duration-500", isCorrect ? "po-panel-correct" : isWrong ? "po-panel-wrong po-iso-wrong" : locked ? "po-panel-locked" : "po-panel"].join(" ")}
-                    style={{ height: "13cqh" }}>
-                    <span className="absolute right-[0.7cqw] top-[0.5cqh] font-black text-po-white/50" style={{ fontSize: "1.6cqh" }}>{HE_LETTER[k]}</span>
-                    <div className="flex flex-1 items-center justify-center px-[1.6cqw] pt-[0.6cqh] text-center">
-                      <span className="font-black leading-tight text-po-white" style={{ fontSize: "2.7cqh" }}>{q ? answerOf(q, k) : ""}</span>
-                    </div>
-                    <div className="flex items-center justify-center gap-[0.4cqw] px-[0.6cqw] pb-[1cqh]" style={{ minHeight: "3.6cqh" }}>
-                      {on.map((p) => <PlateChip key={p.id} plate={p} size="cq" dim={Boolean(isWrong)} />)}
-                    </div>
-                  </div>
+                  <IsoAnswerPane key={`${airing}:${k}`} letter={k} text={q ? answerOf(q, k) : ""} plates={on} locked={locked} correct={isCorrect} wrong={Boolean(isWrong)} animateReveal={revealAiring === airing && airing !== null} />
                 );
               })}
             </div>
