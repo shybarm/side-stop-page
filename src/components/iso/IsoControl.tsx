@@ -44,6 +44,8 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
   const key = snap?.game?.question_key ?? null, iso = snap?.iso, st = snap?.game?.state, q = snap?.game?.question as Question | null;
   const keys = activeAnswerKeys(st?.questionIndex ?? 0), phase = st?.phase ?? "idle";
   const locked = Boolean(iso?.locked_snapshot), revealed = REVEAL.has(phase) || Boolean(iso?.resolved);
+  // Mirror the game board: question from "intro", answers from "answers" — never earlier.
+  const showQ = Boolean(q) && phase !== "idle", showA = showQ && phase !== "intro";
   useEffect(() => { setUndo([]); setSelected(null); }, [key]);
   if (snap?.role && snap.role !== "director" && snap.role !== "game") return <div className="p-10 text-po-red">מפתח לקריאה בלבד</div>;
   const plates = snap?.plates ?? [], byId = new Map(plates.map((p) => [p.id, p]));
