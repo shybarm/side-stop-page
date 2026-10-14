@@ -14,3 +14,5 @@
 - All ISO session reads/writes go through server functions in `src/lib/iso/iso.functions.ts`, which call SECURITY DEFINER SQL functions granted only to service_role; role (game/director/output) is enforced in SQL by per-role key hashes — tables have RLS with no client access.
 - Elimination, lock snapshots, event dedupe and version checks happen atomically inside SQL functions (`iso_game_publish`, `iso_place`, `iso_resolve`) so retries and replays cannot double-apply.
 - Realtime is used only as a "version changed" ping (`realtime.send` on topic `iso:<CODE>`); clients always refetch the latest full snapshot, with polling as fallback.
+- Each airing of a question gets its own ISO key (`slot:questionId:airedAt`), so re-running a slot never reuses an old lock/reveal state; critical events are deduped by client event ID, not gated by sequence.
+- ISO graphics position/scale lives in `game_sessions.layout` (director-only via `iso_set_layout`), separate from plates and timer; the director's test photo stays a local object URL and is never uploaded or logged.

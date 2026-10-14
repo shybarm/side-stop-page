@@ -25,6 +25,7 @@ export type Database = {
           heartbeat_at: string | null
           id: string
           last_event_seq: number
+          layout: Json
           output_hash: string
           question: Json | null
           question_key: string | null
@@ -39,6 +40,7 @@ export type Database = {
           heartbeat_at?: string | null
           id?: string
           last_event_seq?: number
+          layout?: Json
           output_hash: string
           question?: Json | null
           question_key?: string | null
@@ -53,6 +55,7 @@ export type Database = {
           heartbeat_at?: string | null
           id?: string
           last_event_seq?: number
+          layout?: Json
           output_hash?: string
           question?: Json | null
           question_key?: string | null
@@ -196,6 +199,7 @@ export type Database = {
           heartbeat_at: string | null
           id: string
           last_event_seq: number
+          layout: Json
           output_hash: string
           question: Json | null
           question_key: string | null
@@ -258,6 +262,10 @@ export type Database = {
       }
       iso_resolve: {
         Args: { _key: string; _sid: string; _use_current: boolean }
+        Returns: Json
+      }
+      iso_set_layout: {
+        Args: { _code: string; _hash: string; _layout: Json }
         Returns: Json
       }
       iso_set_plate_status: {

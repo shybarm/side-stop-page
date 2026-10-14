@@ -1,23 +1,26 @@
 import { useEffect, useState } from "react";
 import { activeAnswerKeys, answerOf, HE_LETTER, type AnswerKey, type Question } from "@/lib/pullover/types";
-import type { IsoSnapshot, Plate } from "@/lib/iso/types";
+import { layoutOf, type IsoSnapshot, type LayoutBox, type Plate } from "@/lib/iso/types";
 
-/** A license plate chip: fixed colour, no number or text. */
-export function PlateChip({ plate, size = "md", dim = false }: { plate: Pick<Plate, "color">; size?: "sm" | "md" | "lg"; dim?: boolean }) {
-  const s = size === "sm" ? "h-4 w-9" : size === "lg" ? "h-10 w-24" : "h-7 w-16";
-  return <span className={["po-plate inline-block shrink-0", s, dim ? "po-plate-out" : ""].join(" ")} style={{ ["--plate" as string]: plate.color }} />;
+/** A license plate chip: fixed colour, no number or text. "cq" sizes it relative to the output frame. */
+export function PlateChip({ plate, size = "md", dim = false }: { plate: Pick<Plate, "color">; size?: "sm" | "md" | "lg" | "cq"; dim?: boolean }) {
+  const s = size === "sm" ? "h-4 w-9" : size === "lg" ? "h-10 w-24" : size === "md" ? "h-7 w-16" : "";
+  const style: React.CSSProperties & Record<string, string> = size === "cq"
+    ? { ["--plate"]: plate.color, height: "2.3cqh", width: "5.2cqh", borderWidth: "0.25cqh" }
+    : { ["--plate"]: plate.color };
+  return <span className={["po-plate inline-block shrink-0", s, dim ? "po-plate-out" : ""].join(" ")} style={style} />;
 }
 
 const REVEAL = new Set(["wiping", "revealed", "transition", "progress"]);
+/** Width of the answer row per answer count, as % of the frame — narrower for fewer answers. */
+const ROW_WIDTH: Record<number, number> = { 4: 92, 3: 78, 2: 58 };
 
-// Answer boxes per layout, as % of the 16:9 frame. Centre (≈ 28%–72% wide) is kept free for host & contestants.
-const LAYOUT: Record<number, { l: number; t: number; w: number; h: number }[]> = {
-  4: [{ l: 74, t: 26, w: 23, h: 28 }, { l: 3, t: 26, w: 23, h: 28 }, { l: 74, t: 60, w: 23, h: 28 }, { l: 3, t: 60, w: 23, h: 28 }],
-  3: [{ l: 74, t: 30, w: 23, h: 32 }, { l: 3, t: 30, w: 23, h: 32 }, { l: 37, t: 79, w: 26, h: 17 }],
-  2: [{ l: 72, t: 34, w: 25, h: 40 }, { l: 3, t: 34, w: 25, h: 40 }],
-};
-
-export function IsoOutputView({ snap, serverNow, compact = false }: { snap: IsoSnapshot | null; serverNow: () => number; compact?: boolean }) {
+/**
+ * Lower-third ISO graphic: a compact question bar with the timer road attached to it, and one row of
+ * low answer panels (with their plates) beneath it. Everything lives in one group anchored to the bottom
+ * of the frame, so the centre and upper frame stay clear for faces. `layout` moves/scales the whole group.
+ */
+export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot | null; serverNow: () => number; compact?: boolean; layout?: LayoutBox }) {
   const st = snap?.game?.state, q = snap?.game?.question as Question | null | undefined;
   const phase = st?.phase ?? "idle", idx = st?.questionIndex ?? 0, keys = activeAnswerKeys(idx);
   const placements = snap?.iso?.placements ?? {};
@@ -26,46 +29,61 @@ export function IsoOutputView({ snap, serverNow, compact = false }: { snap: IsoS
   const showQ = Boolean(q?.text) && phase !== "idle";
   const showA = showQ && phase !== "intro";
   const locked = phase === "locked" || Boolean(snap?.iso?.locked_snapshot && !revealed);
-  const boxes = LAYOUT[keys.length];
+  const box = layout ?? layoutOf(snap?.layout).current;
+  const width = ROW_WIDTH[keys.length] ?? 92;
   return (
     <div dir="rtl" className="relative h-full w-full overflow-hidden" style={{ containerType: "size" }}>
       {showQ && (
-        <div className="po-rise absolute inset-x-[14%] top-[4%] flex flex-col items-center gap-[1cqh]">
-          <div className="po-logo-lockup px-[2cqw] py-[0.5cqh]"><span className="po-logo-text font-black" style={{ fontSize: "2.2cqh" }}>עצור <b>בצד</b></span></div>
-          <div className="po-question-marquee w-full px-[3cqw] py-[1.6cqh] text-center">
-            <h1 className="po-question-type font-black leading-tight" style={{ fontSize: "4.2cqh" }}>{q?.text}</h1>
+        <div data-iso-group className="absolute bottom-[3.5%] left-1/2 flex flex-col items-center gap-[1.1cqh]"
+          style={{ width: `${width}%`, transform: `translate(calc(-50% + ${box.x}cqw), ${box.y}cqh) scale(${box.scale})`, transformOrigin: "50% 100%" }}>
+          <div className="po-rise flex w-full items-stretch gap-[1cqw]">
+            <div className="po-logo-lockup flex shrink-0 items-center px-[1.2cqw]"><span className="po-logo-text whitespace-nowrap font-black" style={{ fontSize: "2cqh" }}>עצור <b>בצד</b></span></div>
+            <div className="po-question-marquee flex min-w-0 flex-1 flex-col justify-center px-[2cqw] py-[1cqh]">
+              <h1 className="po-question-type text-center font-black leading-[1.15]" style={{ fontSize: "3.3cqh" }}>{q?.text}</h1>
+            </div>
           </div>
-          {phase === "timing" && st?.timerStartedAtServer && <IsoTimer start={st.timerStartedAtServer} duration={st.timerDurationMs ?? 60000} serverNow={serverNow} />}
+          <div className="w-full" style={{ height: "1.9cqh", visibility: phase === "timing" && st?.timerStartedAtServer ? "visible" : "hidden" }}>
+            {phase === "timing" && st?.timerStartedAtServer ? <IsoTimer start={st.timerStartedAtServer} duration={st.timerDurationMs ?? 60000} serverNow={serverNow} /> : null}
+          </div>
+          {showA && (
+            <div className="flex w-full items-stretch gap-[1cqw]">
+              {keys.map((k) => {
+                const on = plates.filter((p) => placements[p.id] === k);
+                const isCorrect = revealed && correct === k, isWrong = revealed && correct && correct !== k;
+                return (
+                  <div key={k} className={["po-rise relative flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border transition-colors duration-500", isCorrect ? "po-panel-correct" : isWrong ? "po-panel-wrong po-iso-wrong" : locked ? "po-panel-locked" : "po-panel"].join(" ")}
+                    style={{ height: "13cqh" }}>
+                    <span className="absolute right-[0.7cqw] top-[0.5cqh] font-black text-po-white/50" style={{ fontSize: "1.6cqh" }}>{HE_LETTER[k]}</span>
+                    <div className="flex flex-1 items-center justify-center px-[1.6cqw] pt-[0.6cqh] text-center">
+                      <span className="font-black leading-tight text-po-white" style={{ fontSize: "2.7cqh" }}>{q ? answerOf(q, k) : ""}</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-[0.4cqw] px-[0.6cqw] pb-[1cqh]" style={{ minHeight: "3.6cqh" }}>
+                      {on.map((p) => <PlateChip key={p.id} plate={p} size="cq" dim={Boolean(isWrong)} />)}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
-      {showA && boxes && keys.map((k, i) => {
-        const b = boxes[i]!, on = plates.filter((p) => placements[p.id] === k);
-        const isCorrect = revealed && correct === k, isWrong = revealed && correct && correct !== k;
-        return (
-          <div key={k} className={["absolute flex flex-col overflow-hidden rounded-xl border transition-all duration-500", isCorrect ? "po-panel-correct" : isWrong ? "po-panel-wrong po-iso-wrong" : locked ? "po-panel-locked" : "po-panel"].join(" ")}
-            style={{ left: `${b.l}%`, top: `${b.t}%`, width: `${b.w}%`, height: `${b.h}%` }}>
-            <span className="absolute right-[0.8cqw] top-[0.6cqh] font-black text-po-white/50" style={{ fontSize: "1.8cqh" }}>{HE_LETTER[k]}</span>
-            <div className="flex flex-1 items-center justify-center px-[1.2cqw] text-center">
-              <span className="font-black leading-tight text-white" style={{ fontSize: keys.length === 3 && i === 2 ? "3cqh" : "3.4cqh" }}>{q ? answerOf(q, k) : ""}</span>
-            </div>
-            <div className="flex min-h-[22%] flex-wrap items-center justify-center gap-[0.5cqw] px-[0.8cqw] pb-[1cqh]">
-              {on.map((p) => <PlateChip key={p.id} plate={p} size={compact ? "sm" : "md"} dim={Boolean(isWrong)} />)}
-            </div>
-          </div>
-        );
-      })}
     </div>
   );
 }
 
+/** Timer as a road strip under the question bar: the car drives right → left over the timer's duration. */
 function IsoTimer({ start, duration, serverNow }: { start: number; duration: number; serverNow: () => number }) {
   const [p, setP] = useState(0);
   useEffect(() => { let r = 0; const f = () => { setP(Math.max(0, Math.min(1, (serverNow() - start) / duration))); r = requestAnimationFrame(f); }; f(); return () => cancelAnimationFrame(r); }, [start, duration, serverNow]);
   return (
-    <div dir="ltr" className="po-iso-road relative mt-[0.5cqh] h-[2.2cqh] w-[60%] rounded-full">
-      <div className="po-road-dashes absolute inset-x-[2%] top-1/2 h-[2px] -translate-y-1/2" />
-      <div className="absolute top-1/2 -translate-y-1/2" style={{ left: `calc(${p * 96}% )`, width: "3.2cqh" }}>
-        <div className="relative" style={{ aspectRatio: "1.9 / 1" }}><div className="po-car-body absolute inset-0" style={{ transform: "rotate(90deg) scale(.55,1.9)" }} /></div>
+    <div className="po-iso-road relative h-full w-full rounded-full">
+      <div className="po-iso-dashes absolute inset-x-[1.5%] top-1/2 h-[0.25cqh] -translate-y-1/2" />
+      <div className="absolute top-1/2 -translate-y-1/2" style={{ right: `calc(${p * 100}% - ${p * 5}cqh)`, width: "5cqh", height: "2.6cqh" }}>
+        <div className="absolute left-1/2 top-1/2" style={{ width: "2.6cqh", height: "5cqh", transform: "translate(-50%,-50%) rotate(-90deg)" }}>
+          <div className="po-car-body absolute inset-0" style={{ borderWidth: "0.2cqh" }} />
+          <div className="po-car-glass absolute inset-x-[18%] top-[16%] h-[26%]" />
+          <div className="po-car-glass absolute inset-x-[18%] bottom-[16%] h-[20%]" />
+        </div>
       </div>
     </div>
   );

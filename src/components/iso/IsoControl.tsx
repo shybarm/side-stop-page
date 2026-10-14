@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { IsoOutputView, PlateChip } from "./IsoOutputView";
+import { IsoLayoutPanel } from "./IsoLayoutPanel";
 import { getIsoEvents, placePlate, setPlateStatus } from "@/lib/iso/iso.functions";
 import { readCreds, useIsoSession } from "@/lib/iso/useIsoSession";
 import { errText, slotOfKey, type IsoEvent, type IsoSnapshot, type Plate } from "@/lib/iso/types";
@@ -66,7 +67,7 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
       await placePlate({ data: { code: creds.code, key: creds.key, questionKey: qkey, plate, target, expected, correction: isCorrection, note: note.trim(), undo: Boolean(opts.undo) } });
       if (!opts.undo && qkey === key) setUndo((u) => [...u.slice(-30), { plate, from, key: qkey }]);
     } catch (e) { toast.error(errText(e)); }
-    finally { setBusy(false); setSelected(null); void refresh(); }
+    finally { setSelected(null); await refresh(); setBusy(false); }
   }
   async function doUndo() { const u = undo[undo.length - 1]; if (!u || u.key !== key) return; setUndo((x) => x.slice(0, -1)); await move(u.plate, u.from, { undo: true }); }
   async function status(plate: string, s: "active" | "eliminated") {
@@ -131,10 +132,7 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
             const slot = slotOfKey(p.status_key);
             return <Alert key={p.id}><span className="flex flex-wrap items-center gap-2">שלט ממתין להשלמת מיקום משאלה {slot + 1}: <PlateChip plate={p} size="sm" />{activeAnswerKeys(slot).map((k) => <button key={k} disabled={busy} onClick={() => void move(p.id, k, { qkey: p.status_key!, forceCorrection: true })} className="rounded border border-po-amber px-2 text-xs">{HE_LETTER[k]}</button>)}</span></Alert>;
           })}
-          <div className="rounded-xl border border-po-steel-line bg-po-asphalt p-4">
-            <div className="mb-2 text-xs text-po-white/40">PREVIEW · ISO OUTPUT</div>
-            <div className="po-iso-checker mx-auto aspect-video max-w-2xl overflow-hidden rounded-lg border border-po-steel-line"><IsoOutputView snap={snap} serverNow={serverNow} compact /></div>
-          </div>
+          <IsoLayoutPanel snap={snap} serverNow={serverNow} creds={creds} onSaved={() => void refresh()} />
         </section>
         <aside className="space-y-3">
           <button onClick={() => void doUndo()} disabled={!undo.length || busy || (locked && !correction)} className="h-14 w-full rounded-xl border border-po-steel-line bg-po-steel text-lg font-bold disabled:opacity-30">בטל פעולה אחרונה</button>
@@ -149,7 +147,7 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
             <div className="flex flex-wrap gap-3">{plates.map((p) => <span key={p.id} className="flex items-center gap-1"><PlateChip plate={p} size="sm" dim={p.status === "eliminated"} />{p.status === "pending" && <i className="text-po-amber">!</i>}</span>)}</div>
             <div className="mt-2 text-xs text-po-white/40">פעילים {plates.filter((p) => p.status === "active").length} · יצאו {plates.filter((p) => p.status === "eliminated").length} · ממתינים {plates.filter((p) => p.status === "pending").length}</div>
           </div>
-          <LogPanel creds={creds} version={`${iso?.version}-${snap?.game_version ?? ""}-${phase}`} />
+          <LogPanel creds={creds} version={`${iso?.version}-${snap?.game_version ?? ""}-${phase}-${JSON.stringify(snap?.layout ?? null)}`} />
           <ReplayPanel />
         </aside>
       </div>
@@ -162,7 +160,7 @@ function Light({ ok, label }: { ok: boolean; label: string }) {
 }
 function Alert({ children }: { children: React.ReactNode }) { return <div className="rounded-lg border border-po-amber bg-po-amber/10 px-4 py-2 text-sm font-bold text-po-amber">{children}</div>; }
 
-const KIND: Record<string, string> = { move: "הזזת שלט", undo: "ביטול", correction: "תיקון מפעיל", pending_completion: "השלמת מיקום", status_correction: "תיקון סטטוס", lock: "נעילה", reveal: "חשיפה", next: "מעבר שאלה", session_created: "פתיחת סשן" };
+const KIND: Record<string, string> = { move: "הזזת שלט", undo: "ביטול", correction: "תיקון מפעיל", pending_completion: "השלמת מיקום", status_correction: "תיקון סטטוס", layout: "שינוי פריסה", lock: "נעילה", reveal: "חשיפה", next: "מעבר שאלה", session_created: "פתיחת סשן" };
 
 function LogPanel({ creds, version }: { creds: { code: string; key: string }; version: string }) {
   const [ev, setEv] = useState<IsoEvent[]>([]);
