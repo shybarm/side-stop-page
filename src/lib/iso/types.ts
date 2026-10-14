@@ -6,6 +6,8 @@ export interface PublishedGameState {
   questionIndex: number;
   timerStartedAtServer: number | null;
   timerDurationMs: number;
+  teamName?: string;
+  gameId?: number | null;
   updatedAt: number;
 }
 export type PlateStatus = "active" | "eliminated" | "pending";
