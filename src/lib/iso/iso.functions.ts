@@ -1,3 +1,4 @@
+// ISO session server actions. Every call is authorised in SQL by the per-role key hash.
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
