@@ -180,8 +180,8 @@ function LogPanel({ creds, version }: { creds: { code: string; key: string }; ve
             <span className="text-po-white/40">{new Date(e.ts).toLocaleTimeString("he-IL")}</span>
             <span className="font-bold">{KIND[e.kind] ?? e.kind}</span>
             <span className="text-po-white/50">ש{e.question_key ? slotOfKey(e.question_key) + 1 : "-"}</span>
-            {typeof e.data.plate === "string" && <span>{e.data.plate}{e.data.from !== undefined || e.data.to !== undefined ? ` ${e.data.from ?? "מאגר"}→${e.data.to ?? "מאגר"}` : ""}</span>}
-            {typeof e.data.note === "string" && e.data.note && <span className="text-po-amber">“{e.data.note}”</span>}
+            {typeof e.data["plate"] === "string" && <span>{e.data["plate"]}{e.data["from"] !== undefined || e.data["to"] !== undefined ? ` ${e.data["from"] ?? "מאגר"}→${e.data["to"] ?? "מאגר"}` : ""}</span>}
+            {typeof e.data["note"] === "string" && e.data["note"] && <span className="text-po-amber">“{e.data["note"]}”</span>}
           </div>
         ))}
       </div>
@@ -192,15 +192,16 @@ function LogPanel({ creds, version }: { creds: { code: string; key: string }; ve
 function ReplayPanel() {
   const [ev, setEv] = useState<IsoEvent[] | null>(null), [i, setI] = useState(0);
   const ref = useRef<HTMLInputElement>(null);
-  const snap = useMemo<IsoSnapshot | null>(() => (ev?.[i]?.data.snapshot ?? null), [ev, i]);
-  const frozenNow = () => (ev?.[i] ? new Date(ev[i].ts).getTime() : Date.now());
+  const cur = ev?.[i];
+  const snap = useMemo<IsoSnapshot | null>(() => (cur?.data.snapshot ?? null), [cur]);
+  const frozenNow = () => (cur ? new Date(cur.ts).getTime() : Date.now());
   return (
     <div className="rounded-xl border border-po-steel-line bg-po-asphalt p-4">
       <div className="mb-2 flex items-center"><b className="text-sm">שחזור מיומן</b><button onClick={() => ref.current?.click()} className="ms-auto rounded border px-2 py-0.5 text-xs">טען קובץ</button>
         <input ref={ref} type="file" accept="application/json" className="hidden" onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { const j = JSON.parse(await f.text()); setEv(j.events ?? j); setI(0); } catch { toast.error("קובץ יומן לא תקין"); } }} /></div>
       {ev && ev.length > 0 && <>
         <input type="range" min={0} max={ev.length - 1} value={i} onChange={(e) => setI(Number(e.target.value))} className="w-full" />
-        <div className="mb-2 text-xs text-po-white/60">{i + 1}/{ev.length} · {KIND[ev[i].kind] ?? ev[i].kind} · {new Date(ev[i].ts).toLocaleTimeString("he-IL")}</div>
+        <div className="mb-2 text-xs text-po-white/60">{i + 1}/{ev.length} · {cur && (KIND[cur.kind] ?? cur.kind)} · {cur && new Date(cur.ts).toLocaleTimeString("he-IL")}</div>
         <div className="po-iso-checker aspect-video overflow-hidden rounded border border-po-steel-line"><IsoOutputView snap={snap} serverNow={frozenNow} compact /></div>
       </>}
     </div>

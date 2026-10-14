@@ -39,7 +39,7 @@ export function IsoOutputView({ snap, serverNow, compact = false }: { snap: IsoS
         </div>
       )}
       {showA && boxes && keys.map((k, i) => {
-        const b = boxes[i], on = plates.filter((p) => placements[p.id] === k);
+        const b = boxes[i]!, on = plates.filter((p) => placements[p.id] === k);
         const isCorrect = revealed && correct === k, isWrong = revealed && correct && correct !== k;
         return (
           <div key={k} className={["absolute flex flex-col overflow-hidden rounded-xl border transition-all duration-500", isCorrect ? "po-panel-correct" : isWrong ? "po-panel-wrong po-iso-wrong" : locked ? "po-panel-locked" : "po-panel"].join(" ")}
