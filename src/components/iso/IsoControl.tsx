@@ -104,18 +104,25 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
         <Light ok={!gameDown && conn.gameHeartbeatAgeMs != null} label={gameDown ? `מחשב המשחק לא משדר (${Math.round((conn.gameHeartbeatAgeMs ?? 0) / 1000)}ש׳)` : "מחשב המשחק מחובר"} />
         <span className="rounded-full border border-po-steel-line px-3 py-1 text-sm font-bold">{PHASE_LABEL[phase]}</span>
         <span className="font-mono text-sm text-po-white/60">שאלה {(st?.questionIndex ?? 0) + 1} / 7 · {keys.length} תשובות</span>
+        {st?.teamName && <span className="rounded-full bg-po-amber px-3 py-1 text-sm font-black text-po-asphalt-deep">קבוצה: {st.teamName}</span>}
         <button onClick={onLeave} className="ms-auto rounded border px-3 py-1.5 text-xs">החלף סשן</button>
       </header>
       {(stale || gameDown) && <div className="bg-po-red px-6 py-2 text-center font-black">{stale ? "אזהרה: אין סנכרון עם השרת — המצב המוצג אינו עדכני" : "אזהרה: אין דופק ממחשב המשחק — ייתכן שהמצב אינו עדכני"}</div>}
       <div className="grid gap-6 p-6 xl:grid-cols-[1fr_420px]">
         <section className="space-y-4">
           <div className="rounded-xl border border-po-steel-line bg-po-asphalt p-5">
-            <small className="text-po-white/40">שאלה נוכחית</small>
-            <h2 className="text-2xl font-black">{q?.text ?? "ממתין לשאלה ממחשב המשחק"}</h2>
+            <div className="flex items-start gap-4">
+              <div className="min-w-0 flex-1">
+                <small className="text-po-white/40">שאלה נוכחית</small>
+                <h2 className="text-2xl font-black">{showQ ? q?.text : "ממתין לשאלה ממחשב המשחק"}</h2>
+              </div>
+              <DirectorTimer phase={phase} start={st?.timerStartedAtServer ?? null} duration={st?.timerDurationMs ?? 60000} serverNow={serverNow} />
+            </div>
             {locked && <div className="mt-2 text-sm font-bold text-po-amber">הלוח נעול — צילום החלוקה נשמר. {correction ? "מצב תיקון פעיל." : "גרירה חסומה."}</div>}
+            {showQ && !showA && <div className="mt-2 text-sm text-po-white/50">התשובות יוצגו כשמחשב המשחק יציג אותן.</div>}
           </div>
           <div className={["grid gap-3", keys.length === 4 ? "sm:grid-cols-2" : keys.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"].join(" ")}>
-            {q && keys.map((k) => {
+            {showA && q && keys.map((k) => {
               const on = pool.filter((p) => placements[p.id] === k), isC = revealed && (iso?.correct_answer ?? null) === k, isW = revealed && iso?.correct_answer && iso.correct_answer !== k;
               return (
                 <div key={k} {...drop(k)} className={["po-dropzone min-h-40 rounded-xl border p-4", isC ? "po-panel-correct" : isW ? "po-panel-wrong" : locked ? "po-panel-locked" : "po-panel", selected ? "cursor-pointer" : ""].join(" ")}>
