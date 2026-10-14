@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Red timer car, stable two-line question/answer layout, and smooth reliable rapid plate placement with live synchronization checks
 - [x] Mirror golden lock graphics in ISO; gate plate moves to timing; remove correction reason — verified placement blocking, live placement, four golden panes, post-lock correction, status correction logging and reveal blocking in isolated browsers
 - [x] Repair legacy RESET and startup reconciliation; verified eight restored plates, usable placement, password guard, offline reset/reload with unchanged session in isolated browsers
 - [x] Add ISO windshield wipes and smooth wrong-plate dispersal; verified three wrong-answer wipes, six departing plates, correct plates preserved, no replay on refresh
