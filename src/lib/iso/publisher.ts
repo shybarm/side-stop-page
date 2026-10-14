@@ -1,4 +1,5 @@
-/**
+/** (also queues a durable "new_game" event when the operator starts a new game)
+ *
  * Game-computer side of the shared ISO session.
  * Runs entirely in the background: it never blocks the local game controls.
  * - Critical events (lock / reveal / next question) go into a durable localStorage queue.

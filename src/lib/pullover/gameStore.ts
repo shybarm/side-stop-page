@@ -1,4 +1,5 @@
-// airedAt marks each airing of a question (load / next / jump) so the ISO layer treats a re-run as a new question.
+// airedAt marks each airing of a question (load / next / jump / reset) so the ISO layer treats a re-run as a new question.
+// gameId changes on "new game" so every screen, including ISO plates, restarts.
 import { useEffect,useState } from "react";
 import { hardware,WIPE_DURATION_MS } from "./hardwareAdapter";
 import { getQuestions } from "./questionStore";

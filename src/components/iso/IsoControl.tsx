@@ -1,3 +1,4 @@
+// ISO director console: plates, timer, layout and log.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { IsoOutputView, PlateChip } from "./IsoOutputView";
