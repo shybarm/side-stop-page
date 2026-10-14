@@ -37,14 +37,15 @@ function Connect({ onConnect }: { onConnect: (c: { code: string; key: string }) 
 
 function Console({ creds, onLeave }: { creds: { code: string; key: string }; onLeave: () => void }) {
   const { snap, conn, refresh, serverNow } = useIsoSession(creds.code, creds.key);
-  const [correction, setCorrection] = useState(false), [note, setNote] = useState("");
+  const [correction, setCorrection] = useState(false);
   const [selected, setSelected] = useState<string | null>(null), [busy, setBusy] = useState(false);
   const [undo, setUndo] = useState<UndoItem[]>([]);
   const [now, setNow] = useState(Date.now());
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
   const key = snap?.game?.question_key ?? null, iso = snap?.iso, st = snap?.game?.state, q = snap?.game?.question as Question | null;
   const keys = activeAnswerKeys(st?.questionIndex ?? 0), phase = st?.phase ?? "idle";
-  const locked = Boolean(iso?.locked_snapshot), revealed = REVEAL.has(phase) || Boolean(iso?.resolved);
+  const revealed = REVEAL.has(phase) || Boolean(iso?.resolved);
+  const locked = phase === "locked" || Boolean(iso?.locked_snapshot);
   // Mirror the game board: question from "intro", answers from "answers" — never earlier.
   const showA = Boolean(q) && phase !== "idle", showQ = showA && phase !== "intro";
   useEffect(() => { setUndo([]); setSelected(null); }, [key]);
@@ -54,40 +55,42 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
   const placements = iso?.placements ?? {};
   const unplaced = pool.filter((p) => !placements[p.id] && p.status !== "eliminated");
   const pendingOld = plates.filter((p) => p.status === "pending" && p.status_key && p.status_key !== key);
-  const canDrag = !locked || correction;
+  const canCorrect = correction && (locked || revealed);
+  const canDrag = (phase === "timing" && !locked && !revealed) || canCorrect;
+  useEffect(() => { if (!canDrag) setSelected(null); }, [canDrag]);
+  useEffect(() => { setCorrection(false); }, [key]);
   const stale = !conn.online, gameDown = conn.gameHeartbeatAgeMs != null && conn.gameHeartbeatAgeMs > 9000;
 
   async function move(plate: string, target: AnswerKey | null, opts: { qkey?: string; undo?: boolean; forceCorrection?: boolean } = {}) {
     const qkey = opts.qkey ?? key; if (!qkey || !iso) return;
-    const isCorrection = Boolean(opts.forceCorrection ?? (locked && correction));
-    if (isCorrection && !note.trim() && !opts.undo) { toast.error("בתיקון מפעיל יש למלא סיבה"); return; }
+    if (busy || (!opts.qkey && !canDrag)) return;
+    const isCorrection = Boolean(opts.forceCorrection ?? canCorrect);
     const from = (placements[plate] ?? null) as AnswerKey | null;
     if (from === target && !opts.qkey) return;
     setBusy(true);
     try {
       // pending completion of an older question: -1 tells the server to skip the version check for that plate only
       const expected = qkey === key ? iso.version : -1;
-      await placePlate({ data: { code: creds.code, key: creds.key, questionKey: qkey, plate, target, expected, correction: isCorrection, note: note.trim(), undo: Boolean(opts.undo) } });
+      await placePlate({ data: { code: creds.code, key: creds.key, questionKey: qkey, plate, target, expected, correction: isCorrection, note: "", undo: Boolean(opts.undo) } });
       if (!opts.undo && qkey === key) setUndo((u) => [...u.slice(-30), { plate, from, key: qkey }]);
     } catch (e) { toast.error(errText(e)); }
     finally { setSelected(null); await refresh(); setBusy(false); }
   }
   async function doUndo() { const u = undo[undo.length - 1]; if (!u || u.key !== key) return; setUndo((x) => x.slice(0, -1)); await move(u.plate, u.from, { undo: true }); }
   async function status(plate: string, s: "active" | "eliminated") {
-    if (!note.trim()) { toast.error("יש למלא סיבה לתיקון"); return; }
-    try { await setPlateStatus({ data: { code: creds.code, key: creds.key, plate, status: s, note: note.trim() } }); toast.success("התיקון נרשם ביומן"); } catch (e) { toast.error(errText(e)); }
+    try { await setPlateStatus({ data: { code: creds.code, key: creds.key, plate, status: s, note: "" } }); toast.success("התיקון נרשם ביומן"); } catch (e) { toast.error(errText(e)); }
     void refresh();
   }
   const drop = (target: AnswerKey | null) => ({
     onDragOver: (e: React.DragEvent) => { if (canDrag) { e.preventDefault(); e.currentTarget.classList.add("over"); } },
     onDragLeave: (e: React.DragEvent) => e.currentTarget.classList.remove("over"),
-    onDrop: (e: React.DragEvent) => { e.currentTarget.classList.remove("over"); const id = e.dataTransfer.getData("text/plate"); if (id) void move(id, target); },
+    onDrop: (e: React.DragEvent) => { e.currentTarget.classList.remove("over"); if (!canDrag || busy) return; e.preventDefault(); const id = e.dataTransfer.getData("text/plate"); if (id) void move(id, target); },
     onClick: () => { if (selected && canDrag) void move(selected, target); },
   });
   const chip = (p: Plate) => {
     const out = p.status === "eliminated";
     return (
-      <button key={p.id} type="button" draggable={canDrag && !busy && !out} disabled={busy}
+      <button key={p.id} type="button" draggable={canDrag && !busy && !out} disabled={busy || !canDrag || out}
         onDragStart={(e) => e.dataTransfer.setData("text/plate", p.id)}
         onClick={(e) => { e.stopPropagation(); if (canDrag && !out) setSelected(selected === p.id ? null : p.id); }}
         className={["rounded-md p-0.5", selected === p.id ? "ring-2 ring-po-amber" : "", canDrag && !out ? "cursor-grab" : "cursor-not-allowed"].join(" ")} aria-label="שלט">
@@ -140,16 +143,16 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
           {unplaced.length > 0 && q && <Alert>{unplaced.length} שלטים עדיין לא הוקצו לתשובה. {revealed ? "הם ממתינים להשלמת מיקום." : ""}</Alert>}
           {pendingOld.map((p) => {
             const slot = slotOfKey(p.status_key);
-            return <Alert key={p.id}><span className="flex flex-wrap items-center gap-2">שלט ממתין להשלמת מיקום משאלה {slot + 1}: <PlateChip plate={p} size="sm" />{activeAnswerKeys(slot).map((k) => <button key={k} disabled={busy} onClick={() => void move(p.id, k, { qkey: p.status_key!, forceCorrection: true })} className="rounded border border-po-amber px-2 text-xs">{HE_LETTER[k]}</button>)}</span></Alert>;
+            const pendingKey = p.status_key;
+            return <Alert key={p.id}><span className="flex flex-wrap items-center gap-2">שלט ממתין להשלמת מיקום משאלה {slot + 1}: <PlateChip plate={p} size="sm" />{activeAnswerKeys(slot).map((k) => <button key={k} disabled={busy} onClick={() => { if (pendingKey) void move(p.id, k, { qkey: pendingKey, forceCorrection: true }); }} className="rounded border border-po-amber px-2 text-xs">{HE_LETTER[k]}</button>)}</span></Alert>;
           })}
           <IsoLayoutPanel snap={snap} serverNow={serverNow} creds={creds} onSaved={() => void refresh()} />
         </section>
         <aside className="space-y-3">
-          <button onClick={() => void doUndo()} disabled={!undo.length || busy || (locked && !correction)} className="h-14 w-full rounded-xl border border-po-steel-line bg-po-steel text-lg font-bold disabled:opacity-30">בטל פעולה אחרונה</button>
+          <button onClick={() => void doUndo()} disabled={!undo.length || busy || !canDrag} className="h-14 w-full rounded-xl border border-po-steel-line bg-po-steel text-lg font-bold disabled:opacity-30">בטל פעולה אחרונה</button>
           <div className={["rounded-xl border p-4", correction ? "border-po-amber bg-po-amber/10" : "border-po-steel-line bg-po-asphalt"].join(" ")}>
             <label className="flex items-center gap-2 font-black"><input type="checkbox" checked={correction} onChange={(e) => setCorrection(e.target.checked)} />מצב תיקון מפעיל</label>
             <p className="mt-1 text-xs text-po-white/50">לתיקון חלוקה אחרי נעילה או חשיפה, ולתיקון סטטוס שלט. כל פעולה נרשמת ביומן.</p>
-            <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="סיבת התיקון" className="mt-2 w-full rounded border border-po-steel-line bg-po-asphalt-deep px-2 py-1.5 text-sm" />
             {correction && <div className="mt-3 space-y-1.5">{plates.map((p) => <div key={p.id} className="flex items-center gap-2 text-sm"><PlateChip plate={p} size="sm" dim={p.status === "eliminated"} /><span className="flex-1 text-po-white/70">{p.status === "active" ? "פעיל" : p.status === "eliminated" ? "יצא מהמשחק" : "ממתין להשלמה"}</span>{p.status !== "eliminated" ? <button onClick={() => void status(p.id, "eliminated")} className="rounded border border-po-red px-2 text-xs text-po-red">סמן כיצא</button> : <button onClick={() => void status(p.id, "active")} className="rounded border border-po-green px-2 text-xs text-po-green">החזר למשחק</button>}</div>)}</div>}
           </div>
           <div className="rounded-xl border border-po-steel-line bg-po-asphalt p-4 text-sm">
