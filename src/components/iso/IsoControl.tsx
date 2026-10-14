@@ -5,6 +5,7 @@ import { IsoOutputView, PlateChip } from "./IsoOutputView";
 import { IsoLayoutPanel } from "./IsoLayoutPanel";
 import { getIsoEvents, placePlate, setPlateStatus } from "@/lib/iso/iso.functions";
 import { readCreds, useIsoSession } from "@/lib/iso/useIsoSession";
+import { usePlateMoves } from "@/lib/iso/usePlateMoves";
 import { errText, slotOfKey, type IsoEvent, type IsoSnapshot, type Plate } from "@/lib/iso/types";
 import { activeAnswerKeys, answerOf, HE_LETTER, PHASE_LABEL, type AnswerKey, type Question } from "@/lib/pullover/types";
 
@@ -37,6 +38,7 @@ function Connect({ onConnect }: { onConnect: (c: { code: string; key: string }) 
 
 function Console({ creds, onLeave }: { creds: { code: string; key: string }; onLeave: () => void }) {
   const { snap, conn, refresh, serverNow } = useIsoSession(creds.code, creds.key);
+  const plateMoves = usePlateMoves(creds, snap, refresh);
   const [correction, setCorrection] = useState(false);
   const [selected, setSelected] = useState<string | null>(null), [busy, setBusy] = useState(false);
   const [undo, setUndo] = useState<UndoItem[]>([]);
@@ -49,10 +51,9 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
   // Mirror the game board: question from "intro", answers from "answers" — never earlier.
   const showA = Boolean(q) && phase !== "idle", showQ = showA && phase !== "intro";
   useEffect(() => { setUndo([]); setSelected(null); }, [key]);
-  if (snap?.role && snap.role !== "director" && snap.role !== "game") return <div className="p-10 text-po-red">מפתח לקריאה בלבד</div>;
   const plates = snap?.plates ?? [], byId = new Map(plates.map((p) => [p.id, p]));
   const pool = (iso?.pool ?? []).map((id) => byId.get(id)).filter(Boolean) as Plate[];
-  const placements = iso?.placements ?? {};
+  const placements = plateMoves.placements;
   const unplaced = pool.filter((p) => !placements[p.id] && p.status !== "eliminated");
   const pendingOld = plates.filter((p) => p.status === "pending" && p.status_key && p.status_key !== key);
   const canCorrect = correction && (locked || revealed);
@@ -60,6 +61,7 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
   useEffect(() => { if (!canDrag) setSelected(null); }, [canDrag]);
   useEffect(() => { setCorrection(false); }, [key]);
   const stale = !conn.online, gameDown = conn.gameHeartbeatAgeMs != null && conn.gameHeartbeatAgeMs > 9000;
+  if (snap?.role && snap.role !== "director" && snap.role !== "game") return <div className="p-10 text-po-red">מפתח לקריאה בלבד</div>;
 
   async function move(plate: string, target: AnswerKey | null, opts: { qkey?: string; undo?: boolean; forceCorrection?: boolean } = {}) {
     const qkey = opts.qkey ?? key; if (!qkey || !iso) return;
@@ -67,6 +69,12 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
     const isCorrection = Boolean(opts.forceCorrection ?? canCorrect);
     const from = (placements[plate] ?? null) as AnswerKey | null;
     if (from === target && !opts.qkey) return;
+    if (qkey === key) {
+      plateMoves.enqueue(plate, target, isCorrection, Boolean(opts.undo));
+      if (!opts.undo) setUndo((u) => [...u.slice(-30), { plate, from, key: qkey }]);
+      setSelected(null);
+      return;
+    }
     setBusy(true);
     try {
       // pending completion of an older question: -1 tells the server to skip the version check for that plate only
@@ -137,7 +145,7 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
             })}
           </div>
           <div {...drop(null)} className="po-dropzone rounded-xl border border-dashed border-po-steel-line bg-po-asphalt p-4">
-            <div className="mb-2 text-xs text-po-white/50">מאגר השלטים (גרור לתשובה, או לחץ על שלט ואז על תשובה)</div>
+            <div className="mb-2 flex items-center gap-2 text-xs text-po-white/50">מאגר השלטים {plateMoves.pending > 0 && <span role="status" className="text-po-amber">שומר {plateMoves.pending}…</span>}</div>
             <div className="flex min-h-12 flex-wrap gap-2">{unplaced.map(chip)}{!unplaced.length && <span className="text-sm text-po-white/30">כל השלטים הוקצו</span>}</div>
           </div>
           {unplaced.length > 0 && q && <Alert>{unplaced.length} שלטים עדיין לא הוקצו לתשובה. {revealed ? "הם ממתינים להשלמת מיקום." : ""}</Alert>}

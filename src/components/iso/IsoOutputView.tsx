@@ -55,10 +55,10 @@ export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot |
       {showQ && (
         <div data-iso-group className="absolute bottom-[3.5%] left-1/2 flex flex-col items-center gap-[1.1cqh]"
           style={{ width: `${width}%`, transform: `translate(calc(-50% + ${box.x}cqw), ${box.y}cqh) scale(${box.scale})`, transformOrigin: "50% 100%" }}>
-          <div key={showQText ? "q" : "noq"} className="po-rise flex w-full items-stretch gap-[1cqw]" style={{ visibility: showQText ? "visible" : "hidden" }}>
+          <div key={showQText ? "q" : "noq"} className="po-iso-question-row po-rise flex w-full items-stretch gap-[1cqw]" style={{ visibility: showQText ? "visible" : "hidden" }}>
             <div className="po-logo-lockup flex shrink-0 items-center px-[1.2cqw]"><span className="po-logo-text whitespace-nowrap font-black" style={{ fontSize: "2cqh" }}>עצור <b>בצד</b></span></div>
-            <div className="po-question-marquee flex min-w-0 flex-1 flex-col justify-center px-[2cqw] py-[1cqh]">
-              <h1 className="po-question-type text-center font-black leading-[1.15]" style={{ fontSize: "3.3cqh" }}>{q?.text}</h1>
+            <div className="po-question-marquee flex min-w-0 flex-1 flex-col justify-center px-[1.5cqw] py-[0.7cqh]">
+              <h1 className="po-iso-question-text po-question-type text-center font-black">{q?.text}</h1>
             </div>
           </div>
           <div className="w-full" style={{ height: "1.9cqh", visibility: phase === "timing" && st?.timerStartedAtServer ? "visible" : "hidden" }}>

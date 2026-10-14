@@ -16,26 +16,30 @@ export interface IsoConn { online: boolean; lastOkAt: number | null; error: stri
 export function useIsoSession(code: string | null, key: string | null) {
   const [snap, setSnap] = useState<IsoSnapshot | null>(null);
   const [conn, setConn] = useState<IsoConn>({ online: false, lastOkAt: null, error: null, gameHeartbeatAgeMs: null, live: false });
-  const offset = useRef(0), inflight = useRef(false), again = useRef(false), waiters = useRef<(() => void)[]>([]);
-  const refresh = useCallback((): Promise<void> => {
-    if (!code || !key) return Promise.resolve();
-    const done = new Promise<void>((r) => waiters.current.push(r));
+  const offset = useRef(0), inflight = useRef(false), again = useRef(false), waiters = useRef<((snap: IsoSnapshot | null) => void)[]>([]);
+  const refresh = useCallback((): Promise<IsoSnapshot | null> => {
+    if (!code || !key) return Promise.resolve(null);
+    const done = new Promise<IsoSnapshot | null>((r) => waiters.current.push(r));
     if (inflight.current) { again.current = true; return done; }
     inflight.current = true;
     const t0 = Date.now();
+    const currentWaiters = waiters.current;
+    waiters.current = [];
     void (async () => {
+      let result: IsoSnapshot | null = null;
       try {
         const r = (await withTimeout(getIso({ data: { code, key } }), 8000)) as IsoSnapshot;
         const t1 = Date.now();
         offset.current = (r.server_now ?? t1) - (t0 + t1) / 2;
         setSnap(r);
+        result = r;
         setConn((c) => ({ ...c, online: true, lastOkAt: t1, error: null, gameHeartbeatAgeMs: r.heartbeat_at ? (r.server_now ?? 0) - r.heartbeat_at : null }));
       } catch (e) {
         setConn((c) => ({ ...c, online: false, error: (e as Error).message }));
       } finally {
         inflight.current = false;
+        currentWaiters.forEach((resolve) => resolve(result));
         if (again.current) { again.current = false; void refresh(); }
-        else { const w = waiters.current; waiters.current = []; w.forEach((f) => f()); }
       }
     })();
     return done;
