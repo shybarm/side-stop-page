@@ -48,6 +48,7 @@ export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot |
       return () => clearTimeout(t);
     }
     setRevealAiring(null);
+    return undefined;
   }, [airing, revealed]);
   return (
     <div dir="rtl" className="relative h-full w-full overflow-hidden" style={{ containerType: "size" }}>
