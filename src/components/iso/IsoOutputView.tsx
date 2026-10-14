@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-// Clean ISO output graphics (lower third), mirroring what the game board shows.
+// Clean ISO output graphics (lower third), mirroring what the game board shows (answers first, then question).
 import { activeAnswerKeys, answerOf, HE_LETTER, type AnswerKey, type Question } from "@/lib/pullover/types";
 import { layoutOf, type IsoSnapshot, type LayoutBox, type Plate } from "@/lib/iso/types";
 
@@ -28,8 +28,10 @@ export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot |
   const plates = snap?.plates ?? [];
   const revealed = REVEAL.has(phase), correct = (snap?.iso?.correct_answer ?? (revealed ? q?.correctAnswer : null)) as AnswerKey | null;
   // Mirror the game board: it shows the question from "intro", answers from "answers", and a full-screen transition afterwards.
+  // Answers go up first ("intro"), then the question ("answers" phase onwards).
   const showQ = Boolean(q?.text) && !["idle", "transition", "progress"].includes(phase);
-  const showA = showQ && phase !== "intro";
+  const showQText = showQ && phase !== "intro";
+  const showA = showQ;
   const locked = phase === "locked" || Boolean(snap?.iso?.locked_snapshot && !revealed);
   const box = layout ?? layoutOf(snap?.layout).current;
   const width = ROW_WIDTH[keys.length] ?? 92;
@@ -38,7 +40,7 @@ export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot |
       {showQ && (
         <div data-iso-group className="absolute bottom-[3.5%] left-1/2 flex flex-col items-center gap-[1.1cqh]"
           style={{ width: `${width}%`, transform: `translate(calc(-50% + ${box.x}cqw), ${box.y}cqh) scale(${box.scale})`, transformOrigin: "50% 100%" }}>
-          <div className="po-rise flex w-full items-stretch gap-[1cqw]">
+          <div key={showQText ? "q" : "noq"} className="po-rise flex w-full items-stretch gap-[1cqw]" style={{ visibility: showQText ? "visible" : "hidden" }}>
             <div className="po-logo-lockup flex shrink-0 items-center px-[1.2cqw]"><span className="po-logo-text whitespace-nowrap font-black" style={{ fontSize: "2cqh" }}>עצור <b>בצד</b></span></div>
             <div className="po-question-marquee flex min-w-0 flex-1 flex-col justify-center px-[2cqw] py-[1cqh]">
               <h1 className="po-question-type text-center font-black leading-[1.15]" style={{ fontSize: "3.3cqh" }}>{q?.text}</h1>
