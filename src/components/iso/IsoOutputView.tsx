@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { IsoAnswerPane } from "./IsoAnswerPane";
 // Clean ISO output graphics (lower third), mirroring what the game board shows (answers first, then question).
-import { activeAnswerKeys, answerOf, HE_LETTER, type AnswerKey, type Question } from "@/lib/pullover/types";
+import { activeAnswerKeys, answerOf, type AnswerKey, type Question } from "@/lib/pullover/types";
 import { layoutOf, type IsoSnapshot, type LayoutBox, type Plate } from "@/lib/iso/types";
 
 /** A license plate chip: fixed colour, no number or text. "cq" sizes it relative to the output frame. */
