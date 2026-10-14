@@ -8,3 +8,9 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+## Architecture rules
+- Local game state (`src/lib/pullover/gameStore.ts`) stays authoritative and offline-capable; cross-computer ISO sync is a separate background layer (`src/lib/iso/publisher.ts`) that subscribes to it and must never block local controls.
+- All ISO session reads/writes go through server functions in `src/lib/iso/iso.functions.ts`, which call SECURITY DEFINER SQL functions granted only to service_role; role (game/director/output) is enforced in SQL by per-role key hashes — tables have RLS with no client access.
+- Elimination, lock snapshots, event dedupe and version checks happen atomically inside SQL functions (`iso_game_publish`, `iso_place`, `iso_resolve`) so retries and replays cannot double-apply.
+- Realtime is used only as a "version changed" ping (`realtime.send` on topic `iso:<CODE>`); clients always refetch the latest full snapshot, with polling as fallback.
