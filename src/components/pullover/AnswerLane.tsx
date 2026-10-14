@@ -28,7 +28,7 @@ export function AnswerLane({ letter, text, phase, isCorrect, wipeSeq, compact = 
   const delay = `${index * 0.16}s`;
   // Blade runs on entry and again when this pane is wiped away; it rests parked otherwise.
   const bladeKey = empty ? "parked" : wrong ? `out-${wipeSeq}` : "in";
-  const bladeRuns = !empty && (!result || wrong) && !(result && phase === "revealed" && !wrong);
+  const bladeRuns = !empty && (!result || wrong);
   return (
     <div className={["po-shield", compact ? "po-shield-compact" : "", state].join(" ")}>
       <div className="po-shield-glass" />
