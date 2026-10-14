@@ -45,9 +45,12 @@ export function useIsoSession(code: string | null, key: string | null) {
     let closed = false, ch: ReturnType<typeof supabase.channel> | null = null, reT = 0 as any;
     const subscribe = () => {
       if (closed) return;
-      if (ch) void supabase.removeChannel(ch);
-      ch = supabase.channel(`iso:${code.toUpperCase()}`).on("broadcast", { event: "v" }, () => void refresh())
-        .subscribe((st) => {
+      const old = ch; ch = null;
+      if (old) void supabase.removeChannel(old);
+      const mine = supabase.channel(`iso:${code.toUpperCase()}`).on("broadcast", { event: "v" }, () => void refresh());
+      ch = mine;
+      mine.subscribe((st) => {
+          if (closed || ch !== mine) return; // ignore the replaced channel's own CLOSED event
           setConn((c) => ({ ...c, live: st === "SUBSCRIBED" }));
           if (st === "SUBSCRIBED") void refresh(); // catch anything missed while (re)connecting
           if (st === "CHANNEL_ERROR" || st === "TIMED_OUT" || st === "CLOSED") { clearTimeout(reT); reT = setTimeout(subscribe, 2000); }
