@@ -77,9 +77,9 @@ body.po-iso-transparent{background:transparent!important}
 .po-iso-answer .po-shield-rubber{width:.65cqh;margin-left:-.325cqh}
 .po-iso-answer .po-shield-pivot{width:1.2cqh;height:1.2cqh;margin-left:-.6cqh;bottom:calc(6% - .6cqh)}
 .po-iso-cleared{visibility:hidden}
-.po-iso-plate-row{position:absolute;left:50%;bottom:1cqh;min-height:2.3cqh;width:calc(100% - 1.6cqw);transform:translateX(-50%);display:flex;flex-wrap:wrap;align-content:flex-end;align-items:center;justify-content:center;gap:.5cqh .4cqw;z-index:40;pointer-events:none}
-.po-iso-plate-wrap{position:relative;display:inline-flex;width:5.2cqh;height:2.3cqh;flex:0 0 5.2cqh}
-.po-iso-plate-chip{width:100%;height:100%;border-width:.25cqh}
+.po-iso-plate-row{position:absolute;left:50%;bottom:3.1cqh;min-height:1.9cqh;width:calc(100% - 1.6cqw);transform:translateX(-50%);display:flex;flex-wrap:wrap;align-content:center;align-items:center;justify-content:center;gap:.45cqh .4cqw;z-index:40;pointer-events:none}
+.po-iso-plate-wrap{position:relative;display:inline-flex;width:4.3cqh;height:1.9cqh;flex:0 0 4.3cqh}
+.po-iso-plate-chip{width:100%;height:100%;border-width:.22cqh}
 .po-iso-plate-gone{visibility:hidden}
 .po-iso-dispersing>.po-plate{animation:po-iso-plate-depart 1.45s .12s var(--iso-soft-ease) both;will-change:transform,opacity}
 .po-iso-stardust{position:absolute;inset:0;pointer-events:none}
