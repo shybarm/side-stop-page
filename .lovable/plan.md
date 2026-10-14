@@ -56,6 +56,10 @@
 - שני הקשרי דפדפן מבודדים, שלא חולקים localStorage או BroadcastChannel.
 - תרחישים: מהלך מלא, התחברות באמצע טיימר, יציאת שלט מהמשחק, מעבר שאלה בזמן שעוזר הבמאי מנותק ואז חיבור מחדש, ונסיון כתיבה עם מפתח לא מתאים (צריך להידחות).
 
+**8. סיום**
+- הצגת קישורים למסך השליטה של ה-ISO וליציאה הנקייה.
+- סיכום של בדיקות הסנכרון והשחזור שעברו בפועל.
+
 ## פרטים טכניים
 - הפעלת Lovable Cloud. טבלאות: `game_sessions` (קוד, גיבובי מפתחות, game_state ב-jsonb, question jsonb, question_id, version, heartbeat_at), `iso_plates` (מזהה, צבע, סטטוס), `iso_state` (session, question_id, placements, version) ו-`iso_events`. RLS חוסם כל גישה ישירה של anon או authenticated.
 - כתיבה וקריאה מתבצעות דרך `createServerFn`, עם אימות גיבוב המפתח ועדכון אטומי (`update ... where version = $expected returning`) דרך פונקציות SQL.
