@@ -9,11 +9,16 @@ export function NewGamePanel() {
   const [team, setTeam] = useState("");
   const [open, setOpen] = useState(false), [pw, setPw] = useState(""), [newTeam, setNewTeam] = useState("");
   useEffect(() => { setTeam(state.teamName ?? ""); }, [state.teamName]);
+  useEffect(() => {
+    const requestReset = () => { setPw(""); setNewTeam(""); setOpen(true); };
+    window.addEventListener("pullover:request-new-game", requestReset);
+    return () => window.removeEventListener("pullover:request-new-game", requestReset);
+  }, []);
   const start = () => {
     if (pw !== NEW_GAME_PASSWORD) { toast.error("סיסמה שגויה"); setPw(""); return; }
     actions.newGame(newTeam || team);
     setOpen(false); setPw(""); setNewTeam("");
-    toast.success("משחק חדש התחיל — כל המסכים אופסו");
+    toast.success("משחק חדש התחיל — איפוס ISO נשלח ברקע");
   };
   return (
     <div className="space-y-2 rounded-xl border border-po-steel-line bg-po-asphalt p-3 text-xs">

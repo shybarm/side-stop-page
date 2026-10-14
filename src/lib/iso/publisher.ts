@@ -119,7 +119,9 @@ async function beat() {
 }
 function start() {
   if (unsub || !p.creds) return;
-  const s = getGameState(); if (p.lastPhase === null) { p.lastPhase = s.phase; p.lastKey = keyOf(s); p.lastGameId = s.gameId ?? null; save(); }
+  // Reconcile on every start, including updates made while the publisher was closed/offline.
+  // Do not mark a new game as seen before its durable reset event has been queued.
+  onState();
   unsub = subscribeGameState(onState);
   void beat().then(() => { sentVersion = 0; void flush(); });
   hbT = setInterval(beat, 3000);
