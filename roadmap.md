@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Stabilize clean ISO output for browser-based recording: keep text and plates outside animated masks, center plate groups, and disable first-frame entry masks on the capture route
 - [x] Red timer car and stable two-line questions/multiword answers in 4/3/2 layouts; verified eight rapid placements with delayed network, concurrent directors with version recovery, output readback, reload persistence, lock gating and reason-free corrections (no page errors)
 - [x] Mirror golden lock graphics in ISO; gate plate moves to timing; remove correction reason — verified placement blocking, live placement, four golden panes, post-lock correction, status correction logging and reveal blocking in isolated browsers
 - [x] Repair legacy RESET and startup reconciliation; verified eight restored plates, usable placement, password guard, offline reset/reload with unchanged session in isolated browsers
