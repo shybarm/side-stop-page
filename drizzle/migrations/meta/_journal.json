@@ -36,6 +36,13 @@
       "when": 1791979836213,
       "tag": "0004_iso_new_game_event",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791983515932,
+      "tag": "0005_ignore_legacy_publishers",
+      "breakpoints": true
     }
   ]
 }
