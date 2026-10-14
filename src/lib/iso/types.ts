@@ -1,0 +1,44 @@
+import type { AnswerKey, GamePhase, Question } from "@/lib/pullover/types";
+
+/** Game state as published to the shared session (timer already in server time). */
+export interface PublishedGameState {
+  phase: GamePhase;
+  questionIndex: number;
+  timerStartedAtServer: number | null;
+  timerDurationMs: number;
+  updatedAt: number;
+}
+export type PlateStatus = "active" | "eliminated" | "pending";
+export interface Plate { id: string; color: string; status: PlateStatus; status_key: string | null }
+export interface IsoQuestionState {
+  question_key: string;
+  pool: string[];
+  placements: Record<string, AnswerKey>;
+  locked_snapshot: Record<string, AnswerKey> | null;
+  correct_answer: AnswerKey | null;
+  resolved: boolean;
+  version: number;
+}
+export interface IsoSnapshot {
+  game: { state: Partial<PublishedGameState>; question: (Partial<Question> & { id?: string }) | null; question_key: string | null } | null;
+  plates: Plate[];
+  iso: IsoQuestionState | null;
+  role?: "game" | "director" | "output";
+  heartbeat_at?: number | null;
+  server_now?: number;
+}
+export interface IsoEvent { id: number; ts: string; kind: string; question_key: string | null; seq: number | null; client_event_id: string | null; data: Record<string, unknown> & { snapshot?: IsoSnapshot } }
+
+export const ISO_ERRORS: Record<string, string> = {
+  forbidden: "מפתח לא תקין לסשן הזה",
+  session_not_found: "הסשן לא נמצא",
+  version_conflict: "החלוקה השתנתה במקביל, נטען מחדש",
+  locked: "הלוח נעול, יש להפעיל מצב תיקון",
+  stale_question: "השאלה כבר התחלפה",
+  plate_eliminated: "השלט יצא מהמשחק",
+  plate_not_in_pool: "השלט אינו משתתף בשאלה זו",
+  server_error: "שגיאת שרת",
+};
+export const errText = (e: unknown) => ISO_ERRORS[(e as Error)?.message] ?? "אין חיבור לשרת";
+
+export function slotOfKey(key: string | null | undefined) { return key ? Number(key.split(":")[0]) : 0; }
