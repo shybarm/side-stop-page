@@ -1,4 +1,4 @@
-// ISO director console: plates, timer, layout and log.
+// ISO director console: plates, timer, layout and log. Mirrors the board: answers first, then question.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { IsoOutputView, PlateChip } from "./IsoOutputView";

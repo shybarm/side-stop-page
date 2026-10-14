@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-// Clean ISO output graphics (lower third), mirroring what the game board shows.
+// Clean ISO output graphics (lower third), mirroring what the game board shows (answers first, then question).
 import { activeAnswerKeys, answerOf, HE_LETTER, type AnswerKey, type Question } from "@/lib/pullover/types";
 import { layoutOf, type IsoSnapshot, type LayoutBox, type Plate } from "@/lib/iso/types";
 

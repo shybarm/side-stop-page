@@ -1,3 +1,4 @@
+// Game board: answers go up first (windshield wipe-in), then the question band.
 import { AnswerLane } from "./AnswerLane";
 import { useEffect,useState } from "react";
 import { ANSWER_KEYS,activeAnswerKeys,answerOf,TIMER_DURATION_MS,type AnswerKey,type GameState,type Question } from "@/lib/pullover/types";

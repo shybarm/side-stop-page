@@ -1,3 +1,4 @@
+// Phase order: intro = answers on air, answers = question on air.
 export type AnswerKey = "A" | "B" | "C" | "D";
 export const ANSWER_KEYS: AnswerKey[] = ["A", "B", "C", "D"];
 export const TOTAL_GAME_QUESTIONS = 7;
