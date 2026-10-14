@@ -78,7 +78,7 @@ function IsoTimer({ start, duration, serverNow }: { start: number; duration: num
     <div className="po-iso-road relative h-full w-full rounded-full">
       <div className="po-iso-dashes absolute inset-x-[1.5%] top-1/2 h-[0.25cqh] -translate-y-1/2" />
       <div className="absolute top-1/2 -translate-y-1/2" style={{ right: `calc(${p * 100}% - ${p * 5}cqh)`, width: "5cqh", height: "2.6cqh" }}>
-        <div className="absolute left-1/2 top-1/2" style={{ width: "2.6cqh", height: "5cqh", transform: "translate(-50%,-50%) rotate(90deg)" }}>
+        <div className="absolute left-1/2 top-1/2" style={{ width: "2.6cqh", height: "5cqh", transform: "translate(-50%,-50%) rotate(-90deg)" }}>
           <div className="po-car-body absolute inset-0" style={{ borderWidth: "0.2cqh" }} />
           <div className="po-car-glass absolute inset-x-[18%] top-[16%] h-[26%]" />
           <div className="po-car-glass absolute inset-x-[18%] bottom-[16%] h-[20%]" />
