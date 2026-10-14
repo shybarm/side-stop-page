@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ControlRouteImport } from './routes/control'
 import { Route as GameRouteImport } from './routes/game'
+import { Route as IsoOutputRouteImport } from './routes/iso-output'
 import { Route as QuestionsRouteImport } from './routes/questions'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,11 @@ const GameRoute = GameRouteImport.update({
   path: '/game',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IsoOutputRoute = IsoOutputRouteImport.update({
+  id: '/iso-output',
+  path: '/iso-output',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const QuestionsRoute = QuestionsRouteImport.update({
   id: '/questions',
   path: '/questions',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/control': typeof ControlRoute
   '/game': typeof GameRoute
+  '/iso-output': typeof IsoOutputRoute
   '/questions': typeof QuestionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/control': typeof ControlRoute
   '/game': typeof GameRoute
+  '/iso-output': typeof IsoOutputRoute
   '/questions': typeof QuestionsRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/control': typeof ControlRoute
   '/game': typeof GameRoute
+  '/iso-output': typeof IsoOutputRoute
   '/questions': typeof QuestionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/control' | '/game' | '/questions'
+  fullPaths: '/' | '/control' | '/game' | '/iso-output' | '/questions'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/control' | '/game' | '/questions'
-  id: '__root__' | '/' | '/control' | '/game' | '/questions'
+  to: '/' | '/control' | '/game' | '/iso-output' | '/questions'
+  id: '__root__' | '/' | '/control' | '/game' | '/iso-output' | '/questions'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ControlRoute: typeof ControlRoute
   GameRoute: typeof GameRoute
+  IsoOutputRoute: typeof IsoOutputRoute
   QuestionsRoute: typeof QuestionsRoute
 }
 
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/iso-output': {
+      id: '/iso-output'
+      path: '/iso-output'
+      fullPath: '/iso-output'
+      preLoaderRoute: typeof IsoOutputRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/questions': {
       id: '/questions'
       path: '/questions'
@@ -106,6 +123,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ControlRoute: ControlRoute,
   GameRoute: GameRoute,
+  IsoOutputRoute: IsoOutputRoute,
   QuestionsRoute: QuestionsRoute,
 }
 export const routeTree = rootRouteImport
