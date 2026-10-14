@@ -160,7 +160,7 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
             <div className="flex flex-wrap gap-3">{plates.map((p) => <span key={p.id} className="flex items-center gap-1"><PlateChip plate={p} size="sm" dim={p.status === "eliminated"} />{p.status === "pending" && <i className="text-po-amber">!</i>}</span>)}</div>
             <div className="mt-2 text-xs text-po-white/40">פעילים {plates.filter((p) => p.status === "active").length} · יצאו {plates.filter((p) => p.status === "eliminated").length} · ממתינים {plates.filter((p) => p.status === "pending").length}</div>
           </div>
-          <LogPanel creds={creds} version={`${iso?.version}-${snap?.game_version ?? ""}-${phase}-${JSON.stringify(snap?.layout ?? null)}`} />
+          <LogPanel creds={creds} version={`${iso?.version}-${snap?.game_version ?? ""}-${phase}-${JSON.stringify(snap?.layout ?? null)}-${plates.map((p) => `${p.id}:${p.status}:${p.status_key}`).join(",")}`} />
           <ReplayPanel />
         </aside>
       </div>
