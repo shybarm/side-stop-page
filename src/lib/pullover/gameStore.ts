@@ -1,3 +1,4 @@
+// airedAt marks each airing of a question (load / next / jump) so the ISO layer treats a re-run as a new question.
 import { useEffect,useState } from "react";
 import { hardware,WIPE_DURATION_MS } from "./hardwareAdapter";
 import { getQuestions } from "./questionStore";
