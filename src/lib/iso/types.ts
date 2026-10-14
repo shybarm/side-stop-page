@@ -1,3 +1,4 @@
+// Shared ISO session types.
 import type { AnswerKey, GamePhase, Question } from "@/lib/pullover/types";
 
 /** Game state as published to the shared session (timer already in server time). */
@@ -6,6 +7,8 @@ export interface PublishedGameState {
   questionIndex: number;
   timerStartedAtServer: number | null;
   timerDurationMs: number;
+  teamName?: string;
+  gameId?: number | null;
   updatedAt: number;
 }
 export type PlateStatus = "active" | "eliminated" | "pending";

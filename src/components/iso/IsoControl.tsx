@@ -1,3 +1,4 @@
+// ISO director console: plates, timer, layout and log.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { IsoOutputView, PlateChip } from "./IsoOutputView";
@@ -44,6 +45,8 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
   const key = snap?.game?.question_key ?? null, iso = snap?.iso, st = snap?.game?.state, q = snap?.game?.question as Question | null;
   const keys = activeAnswerKeys(st?.questionIndex ?? 0), phase = st?.phase ?? "idle";
   const locked = Boolean(iso?.locked_snapshot), revealed = REVEAL.has(phase) || Boolean(iso?.resolved);
+  // Mirror the game board: question from "intro", answers from "answers" — never earlier.
+  const showQ = Boolean(q) && phase !== "idle", showA = showQ && phase !== "intro";
   useEffect(() => { setUndo([]); setSelected(null); }, [key]);
   if (snap?.role && snap.role !== "director" && snap.role !== "game") return <div className="p-10 text-po-red">מפתח לקריאה בלבד</div>;
   const plates = snap?.plates ?? [], byId = new Map(plates.map((p) => [p.id, p]));
@@ -102,18 +105,25 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
         <Light ok={!gameDown && conn.gameHeartbeatAgeMs != null} label={gameDown ? `מחשב המשחק לא משדר (${Math.round((conn.gameHeartbeatAgeMs ?? 0) / 1000)}ש׳)` : "מחשב המשחק מחובר"} />
         <span className="rounded-full border border-po-steel-line px-3 py-1 text-sm font-bold">{PHASE_LABEL[phase]}</span>
         <span className="font-mono text-sm text-po-white/60">שאלה {(st?.questionIndex ?? 0) + 1} / 7 · {keys.length} תשובות</span>
+        {st?.teamName && <span className="rounded-full bg-po-amber px-3 py-1 text-sm font-black text-po-asphalt-deep">קבוצה: {st.teamName}</span>}
         <button onClick={onLeave} className="ms-auto rounded border px-3 py-1.5 text-xs">החלף סשן</button>
       </header>
       {(stale || gameDown) && <div className="bg-po-red px-6 py-2 text-center font-black">{stale ? "אזהרה: אין סנכרון עם השרת — המצב המוצג אינו עדכני" : "אזהרה: אין דופק ממחשב המשחק — ייתכן שהמצב אינו עדכני"}</div>}
       <div className="grid gap-6 p-6 xl:grid-cols-[1fr_420px]">
         <section className="space-y-4">
           <div className="rounded-xl border border-po-steel-line bg-po-asphalt p-5">
-            <small className="text-po-white/40">שאלה נוכחית</small>
-            <h2 className="text-2xl font-black">{q?.text ?? "ממתין לשאלה ממחשב המשחק"}</h2>
+            <div className="flex items-start gap-4">
+              <div className="min-w-0 flex-1">
+                <small className="text-po-white/40">שאלה נוכחית</small>
+                <h2 className="text-2xl font-black">{showQ ? q?.text : "ממתין לשאלה ממחשב המשחק"}</h2>
+              </div>
+              <DirectorTimer phase={phase} start={st?.timerStartedAtServer ?? null} duration={st?.timerDurationMs ?? 60000} serverNow={serverNow} />
+            </div>
             {locked && <div className="mt-2 text-sm font-bold text-po-amber">הלוח נעול — צילום החלוקה נשמר. {correction ? "מצב תיקון פעיל." : "גרירה חסומה."}</div>}
+            {showQ && !showA && <div className="mt-2 text-sm text-po-white/50">התשובות יוצגו כשמחשב המשחק יציג אותן.</div>}
           </div>
           <div className={["grid gap-3", keys.length === 4 ? "sm:grid-cols-2" : keys.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"].join(" ")}>
-            {q && keys.map((k) => {
+            {showA && q && keys.map((k) => {
               const on = pool.filter((p) => placements[p.id] === k), isC = revealed && (iso?.correct_answer ?? null) === k, isW = revealed && iso?.correct_answer && iso.correct_answer !== k;
               return (
                 <div key={k} {...drop(k)} className={["po-dropzone min-h-40 rounded-xl border p-4", isC ? "po-panel-correct" : isW ? "po-panel-wrong" : locked ? "po-panel-locked" : "po-panel", selected ? "cursor-pointer" : ""].join(" ")}>
@@ -202,6 +212,26 @@ function ReplayPanel() {
         <div className="mb-2 text-xs text-po-white/60">{i + 1}/{ev.length} · {cur && (KIND[cur.kind] ?? cur.kind)} · {cur && new Date(cur.ts).toLocaleTimeString("he-IL")}</div>
         <div className="po-iso-checker aspect-video overflow-hidden rounded border border-po-steel-line"><IsoOutputView snap={snap} serverNow={frozenNow} compact /></div>
       </>}
+    </div>
+  );
+}
+
+/** Director's view of the game timer, derived from the game computer's start time in server time. */
+function DirectorTimer({ phase, start, duration, serverNow }: { phase: string; start: number | null; duration: number; serverNow: () => number }) {
+  const [left, setLeft] = useState(duration);
+  useEffect(() => {
+    if (phase !== "timing" || !start) return;
+    const f = () => setLeft(Math.max(0, duration - (serverNow() - start)));
+    f(); const t = setInterval(f, 200); return () => clearInterval(t);
+  }, [phase, start, duration, serverNow]);
+  const running = phase === "timing" && Boolean(start);
+  const shown = running ? left : phase === "answers" || phase === "intro" || phase === "idle" ? duration : 0;
+  const sec = Math.ceil(shown / 1000);
+  return (
+    <div data-testid="director-timer" className={["w-32 shrink-0 rounded-xl border p-2 text-center", running ? (sec <= 10 ? "border-po-red" : "border-po-amber") : "border-po-steel-line opacity-60"].join(" ")}>
+      <div className="text-[10px] text-po-white/50">{running ? "זמן רץ" : phase === "locked" ? "ננעל" : "טיימר"}</div>
+      <div dir="ltr" className={["font-mono text-3xl font-black", running && sec <= 10 ? "text-po-red" : ""].join(" ")}>{Math.floor(sec / 60)}:{String(sec % 60).padStart(2, "0")}</div>
+      <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-po-steel"><div className="h-full bg-po-amber" style={{ width: `${(shown / duration) * 100}%` }} /></div>
     </div>
   );
 }

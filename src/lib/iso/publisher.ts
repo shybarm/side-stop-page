@@ -1,4 +1,5 @@
-/**
+/** (also queues a durable "new_game" event when the operator starts a new game)
+ *
  * Game-computer side of the shared ISO session.
  * Runs entirely in the background: it never blocks the local game controls.
  * - Critical events (lock / reveal / next question) go into a durable localStorage queue.
@@ -16,8 +17,8 @@ import type { PublishedGameState } from "./types";
 import { withTimeout } from "./timeout";
 
 export interface GameSessionCreds { code: string; game: string; director: string; output: string }
-interface QueuedEvent { id: string; seq: number; kind: "lock" | "reveal" | "next"; question_key: string | null; correct?: string; at: number }
-interface Persist { creds: GameSessionCreds | null; queue: QueuedEvent[]; seq: number; lastPhase: string | null; lastKey: string | null }
+interface QueuedEvent { id: string; seq: number; kind: "lock" | "reveal" | "next" | "new_game"; question_key: string | null; correct?: string; at: number }
+interface Persist { creds: GameSessionCreds | null; queue: QueuedEvent[]; seq: number; lastPhase: string | null; lastKey: string | null; lastGameId?: number | null }
 
 const KEY = "pullover:iso:publisher:v1";
 const FATAL = new Set(["forbidden", "session_not_found"]);
@@ -54,7 +55,7 @@ function save() {
 /** Identity of one airing of a question: slot + question id + airing time. */
 export const keyOf = (s: GameState) => { const q = questionForSlot(s); return q ? `${s.questionIndex}:${q.id}:${s.airedAt ?? 0}` : null; };
 function published(s: GameState): PublishedGameState {
-  return { phase: s.phase, questionIndex: s.questionIndex, timerStartedAtServer: s.timerStartedAt ? s.timerStartedAt + offset : null, timerDurationMs: TIMER_DURATION_MS, updatedAt: s.updatedAt };
+  return { phase: s.phase, questionIndex: s.questionIndex, teamName: s.teamName ?? "", gameId: s.gameId ?? null, timerStartedAtServer: s.timerStartedAt ? s.timerStartedAt + offset : null, timerDurationMs: TIMER_DURATION_MS, updatedAt: s.updatedAt };
 }
 function onState() {
   const s = getGameState(), key = keyOf(s), q = questionForSlot(s);
@@ -63,10 +64,12 @@ function onState() {
     if (p.queue.some((e) => e.id === id)) return;
     p.queue.push({ id, seq: ++p.seq, kind, question_key: key, at: Date.now() + offset, ...extra });
   };
+  // New game first, so the server restores all plates before the new airing's pool is built.
+  if (s.gameId && s.gameId !== p.lastGameId) { const id = `new_game@${s.gameId}`; if (!p.queue.some((e) => e.id === id)) p.queue.push({ id, seq: ++p.seq, kind: "new_game", question_key: key, at: Date.now() + offset }); }
   if (key && key !== p.lastKey) push("next");
   if (s.phase === "locked" && p.lastPhase !== "locked") push("lock");
   if (s.phase === "wiping" && p.lastPhase !== "wiping" && q) { push("lock"); push("reveal", { correct: q.correctAnswer }); }
-  p.lastPhase = s.phase; p.lastKey = key; save(); emit();
+  p.lastPhase = s.phase; p.lastKey = key; p.lastGameId = s.gameId ?? p.lastGameId ?? null; save(); emit();
   void flush();
 }
 const send = (c: GameSessionCreds, s: GameState, version: number, event: QueuedEvent | null) =>
@@ -116,7 +119,7 @@ async function beat() {
 }
 function start() {
   if (unsub || !p.creds) return;
-  const s = getGameState(); if (p.lastPhase === null) { p.lastPhase = s.phase; p.lastKey = keyOf(s); save(); }
+  const s = getGameState(); if (p.lastPhase === null) { p.lastPhase = s.phase; p.lastKey = keyOf(s); p.lastGameId = s.gameId ?? null; save(); }
   unsub = subscribeGameState(onState);
   void beat().then(() => { sentVersion = 0; void flush(); });
   hbT = setInterval(beat, 3000);

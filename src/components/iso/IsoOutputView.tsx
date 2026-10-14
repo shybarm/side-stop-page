@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+// Clean ISO output graphics (lower third), mirroring what the game board shows.
 import { activeAnswerKeys, answerOf, HE_LETTER, type AnswerKey, type Question } from "@/lib/pullover/types";
 import { layoutOf, type IsoSnapshot, type LayoutBox, type Plate } from "@/lib/iso/types";
 
@@ -26,7 +27,8 @@ export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot |
   const placements = snap?.iso?.placements ?? {};
   const plates = snap?.plates ?? [];
   const revealed = REVEAL.has(phase), correct = (snap?.iso?.correct_answer ?? (revealed ? q?.correctAnswer : null)) as AnswerKey | null;
-  const showQ = Boolean(q?.text) && phase !== "idle";
+  // Mirror the game board: it shows the question from "intro", answers from "answers", and a full-screen transition afterwards.
+  const showQ = Boolean(q?.text) && !["idle", "transition", "progress"].includes(phase);
   const showA = showQ && phase !== "intro";
   const locked = phase === "locked" || Boolean(snap?.iso?.locked_snapshot && !revealed);
   const box = layout ?? layoutOf(snap?.layout).current;
