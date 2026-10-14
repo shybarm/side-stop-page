@@ -13,7 +13,7 @@ async function rpc(fn: string, args: Record<string, unknown>) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await (supabaseAdmin.rpc as unknown as (f: string, a: unknown) => Promise<{ data: unknown; error: { message: string } | null }>)(fn, args);
   if (error) {
-    const known = ["forbidden", "session_not_found", "version_conflict", "locked", "stale_question", "plate_eliminated", "plate_not_in_pool", "question_not_found", "bad_target", "bad_status"];
+    const known = ["forbidden", "session_not_found", "version_conflict", "locked", "stale_question", "plate_eliminated", "plate_not_in_pool", "question_not_found", "bad_target", "bad_status", "bad_layout"];
     const code = known.find((k) => error.message.includes(k));
     if (!code) console.error(fn, error.message);
     throw new Error(code ?? "server_error");
@@ -32,7 +32,7 @@ export const createIsoSession = createServerFn({ method: "POST" }).handler(async
 export const publishGame = createServerFn({ method: "POST" })
   .inputValidator((d) => auth.extend({ version: z.number(), state: z.any(), question: z.any(), questionKey: z.string().nullable(), event: z.any().nullable() }).parse(d))
   .handler(async ({ data }) =>
-    rpc("iso_game_publish", { _code: data.code, _hash: await sha(data.key), _version: data.version, _state: data.state, _question: data.question, _key: data.questionKey, _event: data.event }) as Promise<{ ok: boolean; event_applied: boolean; server_now: number }>,
+    rpc("iso_game_publish", { _code: data.code, _hash: await sha(data.key), _version: data.version, _state: data.state, _question: data.question, _key: data.questionKey, _event: data.event }) as Promise<{ ok: boolean; event_applied: boolean; state_applied: boolean; game_version: number; server_now: number }>,
   );
 
 export const heartbeat = createServerFn({ method: "POST" })
@@ -56,3 +56,8 @@ export const setPlateStatus = createServerFn({ method: "POST" })
 export const getIsoEvents = createServerFn({ method: "POST" })
   .inputValidator((d) => auth.parse(d))
   .handler(async ({ data }) => rpc("iso_get_events", { _code: data.code, _hash: await sha(data.key) }));
+
+const layoutBox = z.object({ x: z.number().min(-50).max(50), y: z.number().min(-60).max(20), scale: z.number().min(0.4).max(1.6) });
+export const setIsoLayout = createServerFn({ method: "POST" })
+  .inputValidator((d) => auth.extend({ layout: z.object({ active: z.enum(["long", "close", "custom"]), current: layoutBox, presets: z.object({ long: layoutBox, close: layoutBox }) }) }).parse(d))
+  .handler(async ({ data }) => rpc("iso_set_layout", { _code: data.code, _hash: await sha(data.key), _layout: data.layout }));

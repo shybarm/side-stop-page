@@ -19,7 +19,14 @@ export interface IsoQuestionState {
   resolved: boolean;
   version: number;
 }
+export interface LayoutBox { x: number; y: number; scale: number }
+export interface IsoLayout { active: "long" | "close" | "custom"; current: LayoutBox; presets: { long: LayoutBox; close: LayoutBox } }
+export const DEFAULT_LAYOUT: IsoLayout = { active: "long", current: { x: 0, y: 0, scale: 1 }, presets: { long: { x: 0, y: 0, scale: 1 }, close: { x: 0, y: 3, scale: 0.82 } } };
+export function layoutOf(l: Partial<IsoLayout> | null | undefined): IsoLayout {
+  return l && l.current && l.presets ? (l as IsoLayout) : DEFAULT_LAYOUT;
+}
 export interface IsoSnapshot {
+  layout?: Partial<IsoLayout> | null;
   game: { state: Partial<PublishedGameState>; question: (Partial<Question> & { id?: string }) | null; question_key: string | null } | null;
   plates: Plate[];
   iso: IsoQuestionState | null;
@@ -39,6 +46,7 @@ export const ISO_ERRORS: Record<string, string> = {
   plate_eliminated: "השלט יצא מהמשחק",
   plate_not_in_pool: "השלט אינו משתתף בשאלה זו",
   server_error: "שגיאת שרת",
+  timeout: "השרת לא הגיב בזמן",
 };
 export const errText = (e: unknown) => ISO_ERRORS[(e as Error)?.message] ?? "אין חיבור לשרת";
 
