@@ -51,8 +51,8 @@ export function IsoLayoutPanel({ snap, serverNow, creds, onSaved }: { snap: IsoS
 
   const btn = "rounded border border-po-steel-line bg-po-steel px-2.5 py-1 text-sm font-bold disabled:opacity-30";
   return (
-    <div className="rounded-xl border border-po-steel-line bg-po-asphalt p-4">
-      <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
+    <div className="rounded-xl border border-po-steel-line bg-po-asphalt p-3">
+      <div className="mb-1 flex flex-wrap items-center gap-2 text-xs">
         <span className="text-po-white/40">PREVIEW · ISO OUTPUT</span>
         <span className="text-po-white/40">· גרור את הגרפיקה כדי להזיז</span>
         <span className="ms-auto flex items-center gap-2">
@@ -63,12 +63,12 @@ export function IsoLayoutPanel({ snap, serverNow, creds, onSaved }: { snap: IsoS
         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) { setPhoto(URL.createObjectURL(f)); setShowPhoto(true); } e.target.value = ""; }} />
       </div>
       <div ref={frame} data-testid="iso-preview" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
-        className={["relative mx-auto aspect-video max-w-3xl cursor-move touch-none select-none overflow-hidden rounded-lg border border-po-steel-line", photo && showPhoto ? "po-iso-photo" : "po-iso-checker"].join(" ")}
+        className={["relative mx-auto aspect-video max-w-xl cursor-move touch-none select-none overflow-hidden rounded-lg border border-po-steel-line", photo && showPhoto ? "po-iso-photo" : "po-iso-checker"].join(" ")}
         style={photo && showPhoto ? { backgroundImage: `url(${photo})` } : undefined}>
         <IsoOutputView snap={snap} serverNow={serverNow} layout={lay.current} />
         {photo && showPhoto && <span className="pointer-events-none absolute left-2 top-2 rounded bg-po-asphalt-deep/80 px-2 py-0.5 text-[10px] font-bold text-po-amber">צילום בדיקה · לא משודר</span>}
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <div className="mt-2 flex flex-wrap items-center gap-2">
         {(["long", "close"] as const).map((k) => (
           <button key={k} onClick={() => apply(k)} className={["rounded-lg border px-3 py-1.5 text-sm font-black", lay.active === k ? "border-po-amber bg-po-amber text-po-asphalt-deep" : "border-po-steel-line"].join(" ")}>{PRESET_LABEL[k]}</button>
         ))}
