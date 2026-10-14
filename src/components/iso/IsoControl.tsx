@@ -214,3 +214,23 @@ function ReplayPanel() {
     </div>
   );
 }
+
+/** Director's view of the game timer, derived from the game computer's start time in server time. */
+function DirectorTimer({ phase, start, duration, serverNow }: { phase: string; start: number | null; duration: number; serverNow: () => number }) {
+  const [left, setLeft] = useState(duration);
+  useEffect(() => {
+    if (phase !== "timing" || !start) return;
+    const f = () => setLeft(Math.max(0, duration - (serverNow() - start)));
+    f(); const t = setInterval(f, 200); return () => clearInterval(t);
+  }, [phase, start, duration, serverNow]);
+  const running = phase === "timing" && Boolean(start);
+  const shown = running ? left : phase === "answers" || phase === "intro" || phase === "idle" ? duration : 0;
+  const sec = Math.ceil(shown / 1000);
+  return (
+    <div data-testid="director-timer" className={["w-32 shrink-0 rounded-xl border p-2 text-center", running ? (sec <= 10 ? "border-po-red" : "border-po-amber") : "border-po-steel-line opacity-60"].join(" ")}>
+      <div className="text-[10px] text-po-white/50">{running ? "זמן רץ" : phase === "locked" ? "ננעל" : "טיימר"}</div>
+      <div dir="ltr" className={["font-mono text-3xl font-black", running && sec <= 10 ? "text-po-red" : ""].join(" ")}>{Math.floor(sec / 60)}:{String(sec % 60).padStart(2, "0")}</div>
+      <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-po-steel"><div className="h-full bg-po-amber" style={{ width: `${(shown / duration) * 100}%` }} /></div>
+    </div>
+  );
+}
