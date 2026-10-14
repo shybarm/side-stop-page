@@ -27,5 +27,5 @@ function IsoOutput() {
     document.body.classList.add("po-iso-transparent");
   }, []);
   const { snap, serverNow } = useIsoSession(creds?.code ?? null, creds?.key ?? null);
-  return <main className="po-iso-transparent fixed inset-0 cursor-none overflow-hidden"><IsoOutputView snap={snap} serverNow={serverNow} /></main>;
+  return <main className="po-iso-capture po-iso-transparent fixed inset-0 cursor-none overflow-hidden"><IsoOutputView snap={snap} serverNow={serverNow} /></main>;
 }

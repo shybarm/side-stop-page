@@ -14,9 +14,11 @@ export function IsoAnswerPane({ letter, text, plates, locked, correct, wrong, an
       <div className={`po-shield-clean ${wrong ? wiping ? "po-wipe-out" : "po-iso-cleared" : "po-wipe-in"}`}>
         <div className="po-shield-tint" />
         {locked && !correct && !wrong && <div data-iso-lock-scan className="po-lock-scan absolute inset-0" />}
+        <div className="po-shield-glare" />
+      </div>
+      <div className={`po-iso-answer-content ${wrong ? wiping ? "is-clearing" : "is-cleared" : ""}`}>
         <span className="po-shield-letter po-iso-answer-letter">{HE_LETTER[letter]}</span>
         <div className="po-iso-answer-text"><span>{text}</span></div>
-        <div className="po-shield-glare" />
       </div>
       <div className="po-shield-wiper-clip">
         <div key={wiping ? "reveal" : "entry"} className={`po-shield-blade ${!wrong || wiping ? "run" : ""}`}><i className="po-shield-arm" /><i className="po-shield-rubber" /></div>
