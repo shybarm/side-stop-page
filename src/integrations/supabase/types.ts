@@ -14,13 +14,263 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      game_sessions: {
+        Row: {
+          code: string
+          created_at: string
+          director_hash: string
+          game_hash: string
+          game_state: Json
+          game_version: number
+          heartbeat_at: string | null
+          id: string
+          last_event_seq: number
+          output_hash: string
+          question: Json | null
+          question_key: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          director_hash: string
+          game_hash: string
+          game_state?: Json
+          game_version?: number
+          heartbeat_at?: string | null
+          id?: string
+          last_event_seq?: number
+          output_hash: string
+          question?: Json | null
+          question_key?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          director_hash?: string
+          game_hash?: string
+          game_state?: Json
+          game_version?: number
+          heartbeat_at?: string | null
+          id?: string
+          last_event_seq?: number
+          output_hash?: string
+          question?: Json | null
+          question_key?: string | null
+        }
+        Relationships: []
+      }
+      iso_events: {
+        Row: {
+          client_event_id: string | null
+          data: Json
+          id: number
+          kind: string
+          question_key: string | null
+          seq: number | null
+          session_id: string
+          ts: string
+        }
+        Insert: {
+          client_event_id?: string | null
+          data?: Json
+          id?: number
+          kind: string
+          question_key?: string | null
+          seq?: number | null
+          session_id: string
+          ts?: string
+        }
+        Update: {
+          client_event_id?: string | null
+          data?: Json
+          id?: number
+          kind?: string
+          question_key?: string | null
+          seq?: number | null
+          session_id?: string
+          ts?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iso_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iso_plates: {
+        Row: {
+          color: string
+          ord: number
+          plate_id: string
+          session_id: string
+          status: string
+          status_key: string | null
+        }
+        Insert: {
+          color: string
+          ord: number
+          plate_id: string
+          session_id: string
+          status?: string
+          status_key?: string | null
+        }
+        Update: {
+          color?: string
+          ord?: number
+          plate_id?: string
+          session_id?: string
+          status?: string
+          status_key?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iso_plates_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iso_state: {
+        Row: {
+          correct_answer: string | null
+          created_at: string
+          locked_snapshot: Json | null
+          placements: Json
+          pool: string[]
+          question_key: string
+          resolved: boolean
+          session_id: string
+          version: number
+        }
+        Insert: {
+          correct_answer?: string | null
+          created_at?: string
+          locked_snapshot?: Json | null
+          placements?: Json
+          pool?: string[]
+          question_key: string
+          resolved?: boolean
+          session_id: string
+          version?: number
+        }
+        Update: {
+          correct_answer?: string | null
+          created_at?: string
+          locked_snapshot?: Json | null
+          placements?: Json
+          pool?: string[]
+          question_key?: string
+          resolved?: boolean
+          session_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iso_state_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      iso_auth: {
+        Args: { _code: string; _hash: string; _roles: string[] }
+        Returns: {
+          code: string
+          created_at: string
+          director_hash: string
+          game_hash: string
+          game_state: Json
+          game_version: number
+          heartbeat_at: string | null
+          id: string
+          last_event_seq: number
+          output_hash: string
+          question: Json | null
+          question_key: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "game_sessions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      iso_create_session: {
+        Args: { _code: string; _d: string; _g: string; _o: string }
+        Returns: Json
+      }
+      iso_ensure_state: {
+        Args: { _key: string; _sid: string }
+        Returns: undefined
+      }
+      iso_game_publish: {
+        Args: {
+          _code: string
+          _event: Json
+          _hash: string
+          _key: string
+          _question: Json
+          _state: Json
+          _version: number
+        }
+        Returns: Json
+      }
+      iso_get: { Args: { _code: string; _hash: string }; Returns: Json }
+      iso_get_events: { Args: { _code: string; _hash: string }; Returns: Json }
+      iso_heartbeat: { Args: { _code: string; _hash: string }; Returns: Json }
+      iso_log: {
+        Args: {
+          _ceid?: string
+          _data: Json
+          _key: string
+          _kind: string
+          _seq?: number
+          _sid: string
+        }
+        Returns: undefined
+      }
+      iso_notify: { Args: { _code: string }; Returns: undefined }
+      iso_place: {
+        Args: {
+          _code: string
+          _correction: boolean
+          _expected: number
+          _hash: string
+          _key: string
+          _note: string
+          _plate: string
+          _target: string
+          _undo: boolean
+        }
+        Returns: Json
+      }
+      iso_resolve: {
+        Args: { _key: string; _sid: string; _use_current: boolean }
+        Returns: Json
+      }
+      iso_set_plate_status: {
+        Args: {
+          _code: string
+          _hash: string
+          _note: string
+          _plate: string
+          _status: string
+        }
+        Returns: Json
+      }
+      iso_snapshot: { Args: { _key: string; _sid: string }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
