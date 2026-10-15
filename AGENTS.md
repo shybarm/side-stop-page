@@ -21,3 +21,4 @@
 - ISO reveal effects are presentation-only, keyed to a live unrevealed-to-revealed transition of the same airing; refreshed/resumed revealed snapshots render the finished state without replaying eliminations.
 - Director placement uses an optimistic, serial client queue with server-version conflict recovery; only acknowledged snapshots reach the clean output, preserving atomic lock/reveal authority while keeping local plate selection immediate.
 - Clean ISO output keeps persistent text and plate layers outside animated CSS masks, because browser-based recording sources may freeze masked layers on their first frame.
+- Concave window geometry is an opt-in presentation mode of AnswerLane shared by the game and control preview; ISO keeps its separate lower-third layout to preserve camera clearance.

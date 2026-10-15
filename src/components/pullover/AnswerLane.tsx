@@ -12,6 +12,7 @@ export interface AnswerLaneProps {
   empty?: boolean;
   /** lane order, used to stagger the entry wipe */
   index?: number;
+  concave?: boolean;
 }
 
 /**
@@ -21,7 +22,7 @@ export interface AnswerLaneProps {
  * away by the same wiper; the correct pane stays put and lights up.
  * The blade here is the virtual stand-in for the physical wiper motor (see hardwareAdapter).
  */
-export function AnswerLane({ letter, text, phase, isCorrect, wipeSeq, compact = false, empty = false, index = 0 }: AnswerLaneProps) {
+export function AnswerLane({ letter, text, phase, isCorrect, wipeSeq, compact = false, empty = false, index = 0, concave = false }: AnswerLaneProps) {
   const locked = phase === "locked";
   const result = phase === "wiping" || phase === "revealed";
   const wrong = result && !isCorrect;
@@ -30,8 +31,19 @@ export function AnswerLane({ letter, text, phase, isCorrect, wipeSeq, compact = 
   // Blade runs on entry and again when this pane is wiped away; it rests parked otherwise.
   const bladeKey = empty ? "parked" : wrong ? `out-${wipeSeq}` : "in";
   const bladeRuns = !empty && (!result || wrong);
+  const shape = "M .025 .025 H .975 V .30 C .87 .66 .48 .86 .025 .975 Z";
+  const mirrorX = index % 2 === 0;
+  const mirrorY = index >= 2;
+  const clipId = `po-concave-${compact ? "preview" : "program"}-${letter}`;
+  const unitTransform = `translate(${mirrorX ? 1 : 0} ${mirrorY ? 1 : 0}) scale(${mirrorX ? -1 : 1} ${mirrorY ? -1 : 1})`;
   return (
-    <div className={["po-shield", compact ? "po-shield-compact" : "", state].join(" ")}>
+    <div data-answer={letter} className={["po-shield", concave ? `po-concave-window po-concave-${index}` : "", compact ? "po-shield-compact" : "", state].join(" ")}>
+      {concave && <svg className="po-concave-outline" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true">
+        <defs><clipPath id={clipId} clipPathUnits="objectBoundingBox"><path d={shape} transform={unitTransform} /></clipPath></defs>
+        <path className="po-concave-edge" d={shape} transform={unitTransform} vectorEffect="non-scaling-stroke" />
+        <path className="po-concave-highlight" d={shape} transform={unitTransform} vectorEffect="non-scaling-stroke" />
+      </svg>}
+      <div className={concave ? "po-concave-surface" : "contents"} style={concave ? { clipPath: `url(#${clipId})` } : undefined}>
       <div className="po-shield-glass" />
       {!empty && (
         <div className={["po-shield-clean", wrong ? "po-wipe-out" : "po-wipe-in"].join(" ")} style={{ animationDelay: wrong ? "0s" : delay }}>
@@ -52,6 +64,7 @@ export function AnswerLane({ letter, text, phase, isCorrect, wipeSeq, compact = 
           <i className="po-shield-pivot" />
         </div>
       )}
+      </div>
     </div>
   );
 }

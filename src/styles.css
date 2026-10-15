@@ -93,4 +93,48 @@ body.po-iso-transparent{background:transparent!important}
 .po-iso-capture .po-wipe-in{-webkit-mask-image:none;mask-image:none;animation:none}
 .po-iso-capture .po-wipe-out{-webkit-mask-image:none;mask-image:none;animation:po-iso-capture-clear .8s cubic-bezier(.45,.05,.35,1) both}
 @keyframes po-iso-capture-clear{0%,42%{opacity:1}100%{opacity:0}}
+:root{
+  --po-window-edge:oklch(79% .14 225);
+  --po-window-blue:oklch(44% .15 253);
+  --po-window-depth:oklch(24% .07 250);
+  --po-window-glow:color-mix(in oklab,var(--po-window-edge) 55%,transparent);
+  --po-window-finish:radial-gradient(ellipse at 50% 0%,color-mix(in oklab,var(--po-window-edge) 24%,transparent),transparent 65%),linear-gradient(155deg,var(--po-window-blue),var(--po-window-depth));
+  --po-window-edge-shadow:0 0 8px var(--po-window-edge),0 0 20px var(--po-window-glow);
+}
+.po-concave-board{container-type:size;isolation:isolate}
+.po-concave-grid{position:absolute;inset:2%;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:1.1%;z-index:10}
+.po-concave-window.po-shield{border-radius:0;background:none;box-shadow:none;transform:none;transition:opacity .5s}
+.po-concave-surface,.po-concave-outline{position:absolute;inset:0;width:100%;height:100%}
+.po-concave-outline{overflow:visible;pointer-events:none;z-index:35;filter:drop-shadow(0 0 6px var(--po-window-glow));color:var(--po-window-edge)}
+.po-concave-edge{fill:none;stroke:currentColor;stroke-width:3}
+.po-concave-highlight{fill:none;stroke:var(--po-amber);stroke-width:1;opacity:.7}
+.po-concave-window .po-shield-glass,.po-concave-window .po-shield-clean,.po-concave-window .po-shield-wiper-clip{inset:0;border-radius:0}
+.po-concave-window .po-shield-clean{background:var(--po-window-finish)}
+.po-concave-window .po-shield-glass{background:var(--po-window-finish)}
+.po-concave-window .po-shield-glass::before{opacity:.2}
+.po-concave-window .po-shield-clean>div.relative{position:absolute;inset:9% 16% 38%;height:auto;width:auto;padding:0}
+.po-concave-window:nth-child(n+3) .po-shield-clean>div.relative{inset:38% 16% 9%}
+.po-concave-window .po-shield-text{font-size:32px;line-height:1.15;text-wrap:balance;overflow-wrap:anywhere}
+.po-concave-window .po-shield-letter{top:9%;right:7%;font-size:18px}
+.po-concave-window:nth-child(n+3) .po-shield-letter{top:auto;bottom:9%}
+.po-concave-window.is-locked .po-concave-outline{color:var(--po-amber)}
+.po-concave-window.is-locked .po-shield-tint{background:var(--iso-lock-glass)}
+.po-concave-window.is-correct{animation:none}
+.po-concave-window.is-correct .po-concave-outline{color:var(--po-green)}
+.po-concave-window.is-wrong .po-concave-outline{opacity:.3;transition:opacity .8s}
+.po-concave-window.is-wrong .po-shield-glass{background:var(--po-asphalt-deep)}
+.po-concave-question{position:absolute;left:22%;right:22%;top:50%;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:12px 0}
+.po-concave-question h1{margin:0;max-width:100%;font-size:32px;font-weight:900;line-height:1.2;white-space:pre-line;text-wrap:balance;overflow-wrap:anywhere}
+.po-concave-question .po-logo-lockup{padding:4px 18px}
+.po-concave-question .po-logo-text{font-size:20px}
+.po-concave-waiting{font-size:24px;font-weight:700;color:color-mix(in oklab,var(--po-white) 45%,transparent)}
+.po-concave-counter{position:absolute;left:4%;top:4%;z-index:40;padding:4px 10px;font-size:14px}
+@container (min-width:1400px){.po-concave-question h1{font-size:40px}.po-concave-window .po-shield-text{font-size:44px}}
+.po-concave-board.is-compact .po-concave-question{gap:4px;padding:0}
+.po-concave-board.is-compact .po-concave-question h1,.po-concave-board.is-compact .po-concave-window .po-shield-text{font-size:10px}
+.po-concave-board.is-compact .po-logo-text,.po-concave-board.is-compact .po-concave-waiting{font-size:9px}
+.po-concave-board.is-compact .po-logo-lockup{padding:1px 6px;border-width:1px}
+.po-concave-board.is-compact .po-shield-letter{font-size:7px}
+.po-concave-board.is-compact .po-concave-edge{stroke-width:1.5}
+@media(prefers-reduced-motion:reduce){.po-concave-board,.po-concave-board *{animation:none!important}.po-concave-board .po-wipe-in{--wipe:181deg}.po-concave-board .po-wipe-out{visibility:hidden}}
 @media(prefers-reduced-motion:reduce){.po-iso-answer .po-lock-scan{animation:none}.po-iso-answer .po-wipe-in{animation:none;--wipe:181deg}.po-iso-answer .po-wipe-out{animation:none;visibility:hidden}.po-iso-answer .po-shield-blade.run{animation:none}.po-iso-dispersing>.po-plate{animation:none;opacity:0}.po-iso-stardust{display:none}}
