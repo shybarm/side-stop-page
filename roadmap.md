@@ -1,4 +1,5 @@
 # Roadmap
+- [x] Remove game-screen wiper hardware and narrow the timer road/car to the gap between windows, hiding them under the central question; verified live timing state, zero game/preview wipers, 2% road width and screenshot with unobscured question
 - [x] Shape the game display into four concave glass windows around a centered question, matching the supplied reference; verified control-to-game question display, golden lock, three cleared wrong answers, fixed correct position, compact preview and narrow viewport without page errors
 - [x] Stabilize clean ISO output for browser-based recording: keep text and plates outside animated masks, center plate groups, and disable first-frame entry masks on the capture route
 - [x] Red timer car and stable two-line questions/multiword answers in 4/3/2 layouts; verified eight rapid placements with delayed network, concurrent directors with version recovery, output readback, reload persistence, lock gating and reason-free corrections (no page errors)

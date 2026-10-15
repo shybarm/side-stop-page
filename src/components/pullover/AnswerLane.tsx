@@ -56,7 +56,7 @@ export function AnswerLane({ letter, text, phase, isCorrect, wipeSeq, compact = 
           <div className="po-shield-glare" />
         </div>
       )}
-      {!compact && (
+      {!compact && !concave && (
         <div className="po-shield-wiper-clip">
           <div key={bladeKey} className={["po-shield-blade", bladeRuns ? "run" : ""].join(" ")} style={{ animationDelay: wrong ? "0s" : delay }}>
             <i className="po-shield-arm" /><i className="po-shield-rubber" />
