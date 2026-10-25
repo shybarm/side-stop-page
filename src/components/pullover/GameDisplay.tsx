@@ -21,7 +21,6 @@ export function GameDisplay({ state, question, compact = false }: GameDisplayPro
         ? null
         : <h1 className="po-rise po-question-type">{question.text}</h1>}
     </section>
-    {!compact && <span dir="ltr" className="po-counter po-concave-counter font-black">{questionIndex + 1} / 7</span>}
   </div>;
 }
 function BroadcastLights(){return <div className="pointer-events-none absolute inset-0 overflow-hidden"><div className="po-blue-beam po-breathe-beam-a absolute -left-[12%] -top-[20%] h-[90%] w-[35%] rotate-[24deg]"/><div className="po-violet-beam po-breathe-beam-b absolute -right-[12%] -top-[20%] h-[90%] w-[35%] -rotate-[24deg]"/><div className="po-bulb-wall po-breathe-bulbs absolute inset-x-0 top-0 h-[16%]"/><div className="po-breathe-haze pointer-events-none absolute inset-0"/><div className="po-floor-glow po-breathe-floor absolute inset-x-[12%] bottom-0 h-[20%]"/></div>}
@@ -29,7 +28,7 @@ export function ShowMark({compact=false}:{compact?:boolean}){return <div classNa
 function StopTransition({compact}:{compact:boolean}){
   const id=useId().replace(/:/g,"");
   const [angle,setAngle]=useState(0);
-  useEffect(()=>{let raf=0;const start=performance.now();const tick=(now:number)=>{const t=Math.max(0,Math.min(1,(now-start-450)/950));setAngle(t*t*(3-2*t)*105);if(t<1)raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);return()=>cancelAnimationFrame(raf)},[]);
+  useEffect(()=>{let raf=0;const start=performance.now();const tick=(now:number)=>{const t=Math.max(0,Math.min(1,(now-start-450)/1100));setAngle(t*180);if(t<1)raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);return()=>cancelAnimationFrame(raf)},[]);
   // One angle drives both the actual blade cutout and the hard erase boundary.
   const rad=angle*Math.PI/180;
   const px=1485,py=735;
@@ -50,7 +49,8 @@ function StopTransition({compact}:{compact:boolean}){
           {angle>0&&<polygon points={`${ex},${ey} ${rx},${ry} ${rx+nx},${ry+ny} ${ex+nx},${ey+ny}`} fill="black"/>}
         </mask>
       </defs>
-      <g opacity={angle>=104?0:1}>
+      <g>
+        <animate attributeName="opacity" from="1" to="0" begin="1.65s" dur=".15s" fill="freeze"/>
         <image href={src} width="1920" height="803" mask={`url(#${id}erase)`}/>
         <g transform={`rotate(${angle} ${px} ${py})`}><image href={src} width="1920" height="803" clipPath={`url(#${id}blade)`}/></g>
       </g>
