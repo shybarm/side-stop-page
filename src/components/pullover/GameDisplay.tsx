@@ -33,14 +33,14 @@ function StopTransition({compact}:{compact:boolean}){
   const exit=Math.max(0,Math.min(1,(elapsed-1500)/550))*2400;
   // One angle drives both the actual blade cutout and the hard erase boundary.
   const rad=angle*Math.PI/180;
-  const px=1485,py=735;
+  const px=1485,py=835;
   const ex=px-2400*Math.cos(rad),ey=py-2400*Math.sin(rad);
   // Erase the entire swept half-plane, including pixels below the hinge.
   // A sector ending at the hinge left the lower trim and glow behind.
   const rx=px+2400*Math.cos(rad),ry=py+2400*Math.sin(rad);
   const nx=-4800*Math.sin(rad),ny=4800*Math.cos(rad);
   const src="https://d2ol7oe51mr4n9.cloudfront.net/user_3K6YEupciLxKIiwN9kh23unuijM/b55a1f97-3d1f-41e5-9217-99c4afc08acf.png";
-  const blade="170,520 1510,680 1500,770 180,600";
+  const blade="155,520 1510,680 1550,740 1540,803 155,803";
   return <div className="po-stop-transition relative h-full w-full overflow-hidden"><BroadcastLights/><div className="po-wiping-brand">
     <svg viewBox="0 0 1920 803" role="img" aria-label="עצור בצד" style={{width:"100%",height:"100%",overflow:"visible"}}>
       <defs>
@@ -52,8 +52,8 @@ function StopTransition({compact}:{compact:boolean}){
         </mask>
       </defs>
       <g>
-        <image href={src} width="1920" height="803" mask={`url(#${id}erase)`} opacity={angle>=180?0:1}/>
-        <g transform={`translate(${exit} 0) rotate(${angle} ${px} ${py})`}><image href={src} width="1920" height="803" clipPath={`url(#${id}blade)`}/></g>
+        <image href={src} width="1920" height="803" mask={`url(#${id}erase)`}/>
+        <g transform={`translate(${exit} 0) rotate(${angle} ${px} ${py}) translate(0 100)`}><image href={src} width="1920" height="803" clipPath={`url(#${id}blade)`}/></g>
       </g>
     </svg>
   </div></div>;
