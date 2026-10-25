@@ -28,7 +28,7 @@ export function ShowMark({compact=false}:{compact?:boolean}){return <div classNa
 function StopTransition({compact}:{compact:boolean}){
   const id=useId().replace(/:/g,"");
   const [angle,setAngle]=useState(0);
-  useEffect(()=>{let raf=0;const start=performance.now();const tick=(now:number)=>{const t=Math.max(0,Math.min(1,(now-start-450)/1100));setAngle(t*180);if(t<1)raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);return()=>cancelAnimationFrame(raf)},[]);
+  useEffect(()=>{let raf=0;const start=performance.now();const tick=(now:number)=>{const t=Math.max(0,Math.min(1,(now-start-450)/1700));setAngle(t*210);if(t<1)raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);return()=>cancelAnimationFrame(raf)},[]);
   // One angle drives both the actual blade cutout and the hard erase boundary.
   const rad=angle*Math.PI/180;
   const px=1485,py=735;
@@ -50,8 +50,8 @@ function StopTransition({compact}:{compact:boolean}){
         </mask>
       </defs>
       <g>
-        <animate attributeName="opacity" from="1" to="0" begin="1.65s" dur=".15s" fill="freeze"/>
-        <image href={src} width="1920" height="803" mask={`url(#${id}erase)`}/>
+        <animate attributeName="opacity" from="1" to="0" begin="2.15s" dur=".05s" fill="freeze"/>
+        <image href={src} width="1920" height="803" mask={`url(#${id}erase)`} opacity={angle>=180?0:1}/>
         <g transform={`rotate(${angle} ${px} ${py})`}><image href={src} width="1920" height="803" clipPath={`url(#${id}blade)`}/></g>
       </g>
     </svg>
