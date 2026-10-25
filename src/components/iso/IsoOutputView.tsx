@@ -5,7 +5,7 @@ import { activeAnswerKeys, answerOf, type AnswerKey, type Question } from "@/lib
 import { layoutOf, type IsoSnapshot, type LayoutBox, type Plate } from "@/lib/iso/types";
 
 /** A license plate chip: fixed colour, keyless remote with fixed colour and number. "cq" sizes it relative to the output frame. */
-export function PlateChip({ plate, size = "md", dim = false, number }: { plate: Pick<Plate, "color">; size?: "sm" | "md" | "lg" | "cq"; dim?: boolean; number?: number }) {
+export function PlateChip({ plate, size = "md", dim = false, number }: { plate: Pick<Plate, "color">; size?: "sm" | "md" | "lg" | "cq"; dim?: boolean; number?: number | undefined }) {
   const s = size === "sm" ? "h-4 w-9" : size === "lg" ? "h-10 w-24" : size === "md" ? "h-7 w-16" : "";
   const style: React.CSSProperties & Record<string, string> = size === "cq"
     ? { ["--plate"]: plate.color, height: "2.3cqh", width: "5.2cqh", borderWidth: "0.25cqh" }
