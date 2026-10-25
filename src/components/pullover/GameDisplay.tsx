@@ -34,6 +34,10 @@ function StopTransition({compact}:{compact:boolean}){
   const rad=angle*Math.PI/180;
   const px=1485,py=735;
   const ex=px-2400*Math.cos(rad),ey=py-2400*Math.sin(rad);
+  // Erase the entire swept half-plane, including pixels below the hinge.
+  // A sector ending at the hinge left the lower trim and glow behind.
+  const rx=px+2400*Math.cos(rad),ry=py+2400*Math.sin(rad);
+  const nx=-4800*Math.sin(rad),ny=4800*Math.cos(rad);
   const src="https://d2ol7oe51mr4n9.cloudfront.net/user_3K6YEupciLxKIiwN9kh23unuijM/b55a1f97-3d1f-41e5-9217-99c4afc08acf.png";
   const blade="170,520 1510,680 1500,770 180,600";
   return <div className="po-stop-transition relative h-full w-full overflow-hidden"><BroadcastLights/><div className="po-wiping-brand">
@@ -43,7 +47,7 @@ function StopTransition({compact}:{compact:boolean}){
         <mask id={id+"erase"} maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="803">
           <rect width="1920" height="803" fill="white"/>
           <polygon points={blade} fill="black"/>
-          {angle>0&&<path d={`M ${px} ${py} L ${px-2400} ${py} A 2400 2400 0 0 1 ${ex} ${ey} Z`} fill="black"/>}
+          {angle>0&&<polygon points={`${ex},${ey} ${rx},${ry} ${rx+nx},${ry+ny} ${ex+nx},${ey+ny}`} fill="black"/>}
         </mask>
       </defs>
       <g opacity={angle>=104?0:1}>
