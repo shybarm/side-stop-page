@@ -4,13 +4,13 @@ import { IsoAnswerPane } from "./IsoAnswerPane";
 import { activeAnswerKeys, answerOf, type AnswerKey, type Question } from "@/lib/pullover/types";
 import { layoutOf, type IsoSnapshot, type LayoutBox, type Plate } from "@/lib/iso/types";
 
-/** A license plate chip: fixed colour, no number or text. "cq" sizes it relative to the output frame. */
-export function PlateChip({ plate, size = "md", dim = false }: { plate: Pick<Plate, "color">; size?: "sm" | "md" | "lg" | "cq"; dim?: boolean }) {
+/** A license plate chip: fixed colour, keyless remote with fixed colour and number. "cq" sizes it relative to the output frame. */
+export function PlateChip({ plate, size = "md", dim = false, number }: { plate: Pick<Plate, "color">; size?: "sm" | "md" | "lg" | "cq"; dim?: boolean; number?: number }) {
   const s = size === "sm" ? "h-4 w-9" : size === "lg" ? "h-10 w-24" : size === "md" ? "h-7 w-16" : "";
   const style: React.CSSProperties & Record<string, string> = size === "cq"
     ? { ["--plate"]: plate.color, height: "2.3cqh", width: "5.2cqh", borderWidth: "0.25cqh" }
     : { ["--plate"]: plate.color };
-  return <span className={["po-plate inline-block shrink-0", s, dim ? "po-plate-out" : ""].join(" ")} style={style} />;
+  return <span className={["po-plate po-remote inline-flex shrink-0 items-center justify-center", s, dim ? "po-plate-out" : ""].join(" ")} style={style}><i className="po-remote-light" />{number != null && <b dir="ltr" className="po-remote-number">{number}</b>}</span>;
 }
 
 const REVEAL = new Set(["wiping", "revealed", "transition", "progress"]);
@@ -71,7 +71,7 @@ export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot |
                 const on = plates.filter((p) => scoredPlacements[p.id] === k);
                 const isCorrect = revealed && correct === k, isWrong = revealed && correct && correct !== k;
                 return (
-                  <IsoAnswerPane key={`${airing}:${k}`} letter={k} text={q ? answerOf(q, k) : ""} plates={on} locked={locked} correct={isCorrect} wrong={Boolean(isWrong)} animateReveal={revealAiring === airing && airing !== null} />
+                  <IsoAnswerPane key={`${airing}:${k}`} letter={k} text={q ? answerOf(q, k) : ""} plates={on} numbers={Object.fromEntries(plates.map((p, i) => [p.id, i + 1]))} locked={locked} correct={isCorrect} wrong={Boolean(isWrong)} animateReveal={revealAiring === airing && airing !== null} />
                 );
               })}
             </div>
