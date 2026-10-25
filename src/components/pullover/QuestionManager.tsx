@@ -11,7 +11,7 @@ import {
   parseCSV,
   parseJSON,
   toCSV,
-  useQuestions,
+  useWarehouse,
 } from "@/lib/pullover/questionStore";
 import { DEMO_QUESTIONS } from "@/lib/pullover/demoQuestions";
 import { ANSWER_KEYS, answerOf, type AnswerKey, type Question } from "@/lib/pullover/types";
@@ -28,7 +28,7 @@ const EMPTY: Question = {
 };
 
 export function QuestionManager() {
-  const [questions, save] = useQuestions();
+  const [questions, save] = useWarehouse();
   const [draft, setDraft] = useState<Question | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 

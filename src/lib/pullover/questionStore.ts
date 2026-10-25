@@ -4,6 +4,23 @@ import { ANSWER_KEYS, type AnswerKey, type Question } from "./types";
 
 const KEY = "pullover:questions:v1";
 const CHANNEL = "pullover:questions";
+const PACK_KEY = "pullover:pack:v1";
+export interface PairPack { pairId: string; pairName: string; questions: Question[]; loadedAt: number }
+let pack: PairPack | null | undefined;
+function readPack(): PairPack | null {
+  if (typeof window === "undefined") return null;
+  try { const p = JSON.parse(localStorage.getItem(PACK_KEY) || "null"); return p && Array.isArray(p.questions) && p.questions.length ? p : null; } catch { return null; }
+}
+export function getPairPack(): PairPack | null { if (pack === undefined) pack = readPack(); return pack; }
+/** Loads a couple's assigned questions as the active game list; the test warehouse is kept untouched. */
+export function setPairPack(next: PairPack | null) {
+  pack = next;
+  if (typeof window !== "undefined") {
+    if (next) localStorage.setItem(PACK_KEY, JSON.stringify(next)); else localStorage.removeItem(PACK_KEY);
+    ensureChannel(); channel?.postMessage("changed");
+  }
+  listeners.forEach((l) => l());
+}
 
 let cache: Question[] | null = null;
 const listeners = new Set<() => void>();
@@ -14,13 +31,13 @@ function ensureChannel() {
   if ("BroadcastChannel" in window) {
     channel = new BroadcastChannel(CHANNEL);
     channel.onmessage = () => {
-      cache = readStorage();
+      cache = readStorage(); pack = readPack();
       listeners.forEach((l) => l());
     };
   }
   window.addEventListener("storage", (e) => {
-    if (e.key === KEY) {
-      cache = readStorage();
+    if (e.key === KEY || e.key === PACK_KEY) {
+      cache = readStorage(); pack = readPack();
       listeners.forEach((l) => l());
     }
   });
@@ -44,7 +61,11 @@ function isQuestion(q: unknown): q is Question {
   return !!o && typeof o.text === "string" && ANSWER_KEYS.includes(o.correctAnswer);
 }
 
+/** Active game questions: the loaded couple's pack if any, otherwise the test warehouse. */
 export function getQuestions(): Question[] {
+  return getPairPack()?.questions ?? getWarehouse();
+}
+export function getWarehouse(): Question[] {
   if (cache) return cache;
   cache = readStorage();
   return cache;
@@ -64,13 +85,21 @@ export function newId() {
   return `q_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
 }
 
-export function useQuestions(): [Question[], (next: Question[]) => void] {
+export function usePairPack(): PairPack | null {
+  const [p, setP] = useState<PairPack | null>(null);
+  useEffect(() => { ensureChannel(); setP(getPairPack()); const l = () => setP(getPairPack()); listeners.add(l); return () => { listeners.delete(l); }; }, []);
+  return p;
+}
+
+export function useWarehouse(): [Question[], (next: Question[]) => void] { return useList(getWarehouse); }
+export function useQuestions(): [Question[], (next: Question[]) => void] { return useList(getQuestions); }
+function useList(get: () => Question[]): [Question[], (next: Question[]) => void] {
   const [items, setItems] = useState<Question[]>(DEMO_QUESTIONS);
 
   useEffect(() => {
     ensureChannel();
-    setItems(getQuestions());
-    const l = () => setItems(getQuestions());
+    setItems(get());
+    const l = () => setItems(get());
     listeners.add(l);
     return () => {
       listeners.delete(l);
