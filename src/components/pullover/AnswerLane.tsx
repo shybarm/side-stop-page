@@ -53,7 +53,7 @@ export function AnswerLane({ letter, text, phase, isCorrect, wipeSeq, compact = 
           <div className={["relative z-10 flex h-full w-full items-center justify-center text-center", compact ? "px-2" : "px-10"].join(" ")}>
             <span className={["po-shield-text font-black leading-tight", compact ? "text-[9px]" : "text-3xl md:text-4xl xl:text-5xl"].join(" ")}>{text}</span>
           </div>
-          <div className="po-shield-glare" />
+           {!concave && <div className="po-shield-glare" />}
         </div>
       )}
       {!compact && !concave && (

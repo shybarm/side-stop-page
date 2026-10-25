@@ -52,6 +52,7 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
   const showA = Boolean(q) && phase !== "idle", showQ = showA && phase !== "intro";
   useEffect(() => { setUndo([]); setSelected(null); }, [key]);
   const plates = snap?.plates ?? [], byId = new Map(plates.map((p) => [p.id, p]));
+  const plateNo = new Map(plates.map((p, i) => [p.id, i + 1]));
   const pool = (iso?.pool ?? []).map((id) => byId.get(id)).filter(Boolean) as Plate[];
   const placements = plateMoves.placements;
   const unplaced = pool.filter((p) => !placements[p.id] && p.status !== "eliminated");
@@ -102,7 +103,7 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
         onDragStart={(e) => e.dataTransfer.setData("text/plate", p.id)}
         onClick={(e) => { e.stopPropagation(); if (canDrag && !out) setSelected(selected === p.id ? null : p.id); }}
         className={["rounded-md p-0.5", selected === p.id ? "ring-2 ring-po-amber" : "", canDrag && !out ? "cursor-grab" : "cursor-not-allowed"].join(" ")} aria-label="שלט">
-        <PlateChip plate={p} size="md" dim={out} />
+        <PlateChip plate={p} size="md" dim={out} number={plateNo.get(p.id)} />
       </button>
     );
   };
@@ -152,7 +153,7 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
           {pendingOld.map((p) => {
             const slot = slotOfKey(p.status_key);
             const pendingKey = p.status_key;
-            return <Alert key={p.id}><span className="flex flex-wrap items-center gap-2">שלט ממתין להשלמת מיקום משאלה {slot + 1}: <PlateChip plate={p} size="sm" />{activeAnswerKeys(slot).map((k) => <button key={k} disabled={busy} onClick={() => { if (pendingKey) void move(p.id, k, { qkey: pendingKey, forceCorrection: true }); }} className="rounded border border-po-amber px-2 text-xs">{HE_LETTER[k]}</button>)}</span></Alert>;
+            return <Alert key={p.id}><span className="flex flex-wrap items-center gap-2">שלט ממתין להשלמת מיקום משאלה {slot + 1}: <PlateChip plate={p} size="sm" number={plateNo.get(p.id)} />{activeAnswerKeys(slot).map((k) => <button key={k} disabled={busy} onClick={() => { if (pendingKey) void move(p.id, k, { qkey: pendingKey, forceCorrection: true }); }} className="rounded border border-po-amber px-2 text-xs">{HE_LETTER[k]}</button>)}</span></Alert>;
           })}
           <IsoLayoutPanel snap={snap} serverNow={serverNow} creds={creds} onSaved={() => void refresh()} />
         </section>
@@ -161,11 +162,11 @@ function Console({ creds, onLeave }: { creds: { code: string; key: string }; onL
           <div className={["rounded-xl border p-3", correction ? "border-po-amber bg-po-amber/10" : "border-po-steel-line bg-po-asphalt"].join(" ")}>
             <label className="flex items-center gap-2 font-black"><input type="checkbox" checked={correction} onChange={(e) => setCorrection(e.target.checked)} />מצב תיקון מפעיל</label>
             <p className="mt-1 text-xs text-po-white/50">לתיקון חלוקה אחרי נעילה או חשיפה, ולתיקון סטטוס שלט. כל פעולה נרשמת ביומן.</p>
-            {correction && <div className="mt-3 space-y-1.5">{plates.map((p) => <div key={p.id} className="flex items-center gap-2 text-sm"><PlateChip plate={p} size="sm" dim={p.status === "eliminated"} /><span className="flex-1 text-po-white/70">{p.status === "active" ? "פעיל" : p.status === "eliminated" ? "יצא מהמשחק" : "ממתין להשלמה"}</span>{p.status !== "eliminated" ? <button onClick={() => void status(p.id, "eliminated")} className="rounded border border-po-red px-2 text-xs text-po-red">סמן כיצא</button> : <button onClick={() => void status(p.id, "active")} className="rounded border border-po-green px-2 text-xs text-po-green">החזר למשחק</button>}</div>)}</div>}
+            {correction && <div className="mt-3 space-y-1.5">{plates.map((p) => <div key={p.id} className="flex items-center gap-2 text-sm"><PlateChip plate={p} size="sm" dim={p.status === "eliminated"} number={plateNo.get(p.id)} /><span className="flex-1 text-po-white/70">{p.status === "active" ? "פעיל" : p.status === "eliminated" ? "יצא מהמשחק" : "ממתין להשלמה"}</span>{p.status !== "eliminated" ? <button onClick={() => void status(p.id, "eliminated")} className="rounded border border-po-red px-2 text-xs text-po-red">סמן כיצא</button> : <button onClick={() => void status(p.id, "active")} className="rounded border border-po-green px-2 text-xs text-po-green">החזר למשחק</button>}</div>)}</div>}
           </div>
           <div className="rounded-xl border border-po-steel-line bg-po-asphalt p-3 text-sm">
             <div className="mb-2 font-black">שלטים בסשן</div>
-            <div className="flex flex-wrap gap-3">{plates.map((p) => <span key={p.id} className="flex items-center gap-1"><PlateChip plate={p} size="sm" dim={p.status === "eliminated"} />{p.status === "pending" && <i className="text-po-amber">!</i>}</span>)}</div>
+            <div className="flex flex-wrap gap-3">{plates.map((p) => <span key={p.id} className="flex items-center gap-1"><PlateChip plate={p} size="sm" dim={p.status === "eliminated"} number={plateNo.get(p.id)} />{p.status === "pending" && <i className="text-po-amber">!</i>}</span>)}</div>
             <div className="mt-2 text-xs text-po-white/40">פעילים {plates.filter((p) => p.status === "active").length} · יצאו {plates.filter((p) => p.status === "eliminated").length} · ממתינים {plates.filter((p) => p.status === "pending").length}</div>
           </div>
           <LogPanel creds={creds} version={`${iso?.version}-${snap?.game_version ?? ""}-${phase}-${JSON.stringify(snap?.layout ?? null)}-${plates.map((p) => `${p.id}:${p.status}:${p.status_key}`).join(",")}`} />
