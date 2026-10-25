@@ -175,3 +175,25 @@ body.po-iso-transparent{background:transparent!important}
 .po-iso-answer .po-shield-blade{left:auto;right:6%;bottom:6%;height:88%;margin-left:0;margin-right:-.4cqh;transform:rotate(-90deg)}.po-iso-answer .po-shield-blade.run{animation:po-right-blade .76s cubic-bezier(.45,.05,.35,1) both}.po-iso-answer .po-shield-pivot{left:auto;right:6%;margin-left:0;margin-right:-.6cqh}.po-iso-answer-content.is-clearing{animation-duration:.76s}
 .po-iso-capture .po-iso-answer .po-wipe-in{-webkit-mask-image:none;mask-image:none;animation:none}
 .po-concave-question .po-logo-lockup{padding:.55cqh 1.8cqw}.po-concave-question .po-logo-text{font-size:3.2cqh;line-height:1.05}.po-logo-text b{background:none;filter:none;-webkit-text-fill-color:inherit}.po-logo-text{padding:.08em .04em}.po-concave-question h1{font-size:4.2cqh;line-height:1.18}.po-concave-window .po-shield-text{font-size:4.2cqh}
+
+/* Broadcast finishing: clear central safe area, exact brand asset and seamless motion. */
+.po-concave-grid{row-gap:24%}
+.po-concave-question{left:8%;right:8%;height:19%;box-sizing:border-box;padding:.4cqh 1cqw;gap:.6cqh;background:none;border:0;box-shadow:none;border-radius:0;justify-content:center}
+.po-concave-question h1{font-size:3.5cqh;line-height:1.15;max-height:8.2cqh;overflow:auto}
+.po-concave-board.is-compact .po-concave-question h1{font-size:3.5cqh}
+.po-original-logo{position:relative;width:100%;height:100%;overflow:hidden}
+.po-original-logo img{width:100%;height:100%;object-fit:contain;display:block}
+.po-concave-question .po-original-logo{width:20cqw;height:8cqh;flex-shrink:0}
+.po-transition-shield{width:65cqw;height:42cqh;background:none;clip-path:none;padding:0;filter:none;animation:po-pane-enter .55s ease-out both}
+.po-stop-transition,.po-progress-show{container-type:size;color:#e8eeff}
+.po-progress-brand{width:48cqw;height:32cqh;margin:auto}
+.po-score-burst,.po-score-burst strong,.po-score-burst .text-right,.po-progress-node span{color:#f4f7ff;-webkit-text-fill-color:#f4f7ff;text-shadow:0 2px 4px #070c2c}
+.po-progress-node{font-variant-numeric:tabular-nums}
+.po-progress-rays{background:radial-gradient(ellipse at 24% 34%,#8850ff44,transparent 52%),radial-gradient(ellipse at 76% 28%,#63dcff24,transparent 48%);transform:none;animation:po-soft-light 8s ease-in-out infinite alternate;filter:blur(24px)}
+.po-breathe-beam-a,.po-breathe-beam-b,.po-bulb-wall{display:none}
+.po-breathe{animation:none}
+.po-speed-lines{animation:none;opacity:.18}
+@keyframes po-soft-light{from{opacity:.5}to{opacity:.9}}
+@keyframes po-dash-move{from{background-position:0 0}to{background-position:0 86px}}
+.po-road-dashes{animation:po-dash-move 1.2s linear infinite}
+@media(prefers-reduced-motion:reduce){.po-progress-rays,.po-road-dashes{animation:none}}
