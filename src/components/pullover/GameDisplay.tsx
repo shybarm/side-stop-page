@@ -32,7 +32,7 @@ function StopTransition({compact}:{compact:boolean}){
   const angle=Math.max(0,Math.min(1,(elapsed-250)/1250))*210;
   const exit=Math.max(0,Math.min(1,(elapsed-1500)/550))*2400;
   // One angle drives both the actual blade cutout and the hard erase boundary.
-  const rad=angle*Math.PI/180;
+  const rad=Math.min(angle,180)*Math.PI/180;
   const px=1485,py=835;
   const ex=px-2400*Math.cos(rad),ey=py-2400*Math.sin(rad);
   // Erase the entire swept half-plane, including pixels below the hinge.
