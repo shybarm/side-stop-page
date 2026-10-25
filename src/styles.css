@@ -215,3 +215,7 @@ body.po-iso-transparent{background:transparent!important}
 .po-concave-board .po-game-timer{clip-path:none;z-index:40}
 .po-wiping-brand{position:absolute;left:17.5%;width:65%;top:22%;height:55%;z-index:20}
 @media(prefers-reduced-motion:reduce){.po-breathe-haze,.po-progress-rays{animation:none}}
+
+/* Approved logo: 12% larger and slightly lower, preserving its aspect ratio. */
+.po-progress-brand{width:53.76cqw;height:35.84cqh}
+.po-wiping-brand{left:13.6%;width:72.8%;top:25%;height:61.6%}
