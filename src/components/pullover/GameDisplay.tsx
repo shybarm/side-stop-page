@@ -1,6 +1,6 @@
 // Game board: answers go up first (windshield wipe-in), then the question band.
 import { AnswerLane } from "./AnswerLane";
-import { useEffect,useState } from "react";
+import { useEffect,useState,useId } from "react";
 import { ANSWER_KEYS,activeAnswerKeys,answerOf,TIMER_DURATION_MS,type AnswerKey,type GameState,type Question } from "@/lib/pullover/types";
 interface GameDisplayProps{state:GameState;question:Question|undefined;total:number;compact?:boolean}
 export function GameDisplay({ state, question, compact = false }: GameDisplayProps) {
@@ -16,9 +16,9 @@ export function GameDisplay({ state, question, compact = false }: GameDisplayPro
     <div className="po-concave-grid">
       {ANSWER_KEYS.map((key, index) => <AnswerLane key={key} letter={key} text={question && active.includes(key) ? answerOf(question, key) : ""} phase={phase} isCorrect={question?.correctAnswer === key} wipeSeq={wipeSeq} index={index} compact={compact} concave empty={!showAnswers || !active.includes(key)} />)}
     </div>
-    <section className="po-concave-question" aria-label="שאלת המשחק">
+    <section className={`po-concave-question ${phase === "idle" || phase === "intro" || !question ? "po-question-empty" : "po-question-bridge"}`} aria-label="שאלת המשחק">
       {phase === "idle" || phase === "intro" || !question
-        ? <span className="po-concave-waiting">ממתין לשאלה</span>
+        ? null
         : <h1 className="po-rise po-question-type">{question.text}</h1>}
     </section>
     {!compact && <span dir="ltr" className="po-counter po-concave-counter font-black">{questionIndex + 1} / 7</span>}
@@ -26,7 +26,33 @@ export function GameDisplay({ state, question, compact = false }: GameDisplayPro
 }
 function BroadcastLights(){return <div className="pointer-events-none absolute inset-0 overflow-hidden"><div className="po-blue-beam po-breathe-beam-a absolute -left-[12%] -top-[20%] h-[90%] w-[35%] rotate-[24deg]"/><div className="po-violet-beam po-breathe-beam-b absolute -right-[12%] -top-[20%] h-[90%] w-[35%] -rotate-[24deg]"/><div className="po-bulb-wall po-breathe-bulbs absolute inset-x-0 top-0 h-[16%]"/><div className="po-breathe-haze pointer-events-none absolute inset-0"/><div className="po-floor-glow po-breathe-floor absolute inset-x-[12%] bottom-0 h-[20%]"/></div>}
 export function ShowMark({compact=false}:{compact?:boolean}){return <div className={compact?"po-original-logo is-small":"po-original-logo"}><img src="https://d2ol7oe51mr4n9.cloudfront.net/user_3K6YEupciLxKIiwN9kh23unuijM/b55a1f97-3d1f-41e5-9217-99c4afc08acf.png" alt="עצור בצד" draggable={false}/></div>}
-function StopTransition({compact}:{compact:boolean}){return <div className="po-stop-transition relative h-full w-full overflow-hidden"><div className="po-speed-lines absolute inset-0"/><div className="po-transition-glow absolute inset-0"/><div className="absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2"><div className={["po-transition-shield flex items-center justify-center",compact?"h-20 w-44":"h-64 w-[36rem]"].join(" ")}><ShowMark compact={compact}/></div></div><div className={["po-transition-caption absolute inset-x-0 bottom-[9%] z-30 text-center font-black tracking-[.25em]",compact?"text-[7px]":"text-2xl"].join(" ")}>ממשיכים בדרך אל הרכב</div></div>}
+function StopTransition({compact}:{compact:boolean}){
+  const id=useId().replace(/:/g,"");
+  const [angle,setAngle]=useState(0);
+  useEffect(()=>{let raf=0;const start=performance.now();const tick=(now:number)=>{const t=Math.max(0,Math.min(1,(now-start-450)/950));setAngle(t*t*(3-2*t)*105);if(t<1)raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);return()=>cancelAnimationFrame(raf)},[]);
+  // One angle drives both the actual blade cutout and the hard erase boundary.
+  const rad=angle*Math.PI/180;
+  const px=1485,py=735;
+  const ex=px-2400*Math.cos(rad),ey=py-2400*Math.sin(rad);
+  const src="https://d2ol7oe51mr4n9.cloudfront.net/user_3K6YEupciLxKIiwN9kh23unuijM/b55a1f97-3d1f-41e5-9217-99c4afc08acf.png";
+  const blade="170,520 1510,680 1500,770 180,600";
+  return <div className="po-stop-transition relative h-full w-full overflow-hidden"><BroadcastLights/><div className="po-wiping-brand">
+    <svg viewBox="0 0 1920 803" role="img" aria-label="עצור בצד" style={{width:"100%",height:"100%",overflow:"visible"}}>
+      <defs>
+        <clipPath id={id+"blade"}><polygon points={blade}/></clipPath>
+        <mask id={id+"erase"} maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="803">
+          <rect width="1920" height="803" fill="white"/>
+          <polygon points={blade} fill="black"/>
+          {angle>0&&<path d={`M ${px} ${py} L ${px-2400} ${py} A 2400 2400 0 0 1 ${ex} ${ey} Z`} fill="black"/>}
+        </mask>
+      </defs>
+      <g opacity={angle>=104?0:1}>
+        <image href={src} width="1920" height="803" mask={`url(#${id}erase)`}/>
+        <g transform={`rotate(${angle} ${px} ${py})`}><image href={src} width="1920" height="803" clipPath={`url(#${id}blade)`}/></g>
+      </g>
+    </svg>
+  </div></div>;
+}
 function ProgressScreen({completed,compact}:{completed:number;compact:boolean}){const safe=Math.max(0,Math.min(completed,7));const pct=safe/7*100;return <div dir="rtl" className="po-progress-show relative h-full w-full overflow-hidden "><div className="po-progress-rays absolute inset-0"/><div className="po-progress-floor absolute inset-x-0 bottom-0 h-[34%]"/><div className={["absolute inset-x-0 z-20 text-center",compact?"top-[8%]":"top-[6%]"].join(" ")}><div className="po-progress-brand"><ShowMark compact={compact}/></div><div className={["font-black text-white/70",compact?"mt-1 text-[5px]":"mt-3 text-lg tracking-[.5em]"].join(" ")}>הדרך אל הרכב</div></div><div className="absolute left-[8%] right-[8%] top-[57%] z-30"><div className="po-progress-track relative"><div className="po-progress-energy absolute inset-y-0 left-0" style={{width:`${pct}%`}}/>{Array.from({length:7},(_,i)=>{const done=i<safe,current=i===safe-1;return <div key={i} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{left:`${i/6*100}%`}}><div className={["po-progress-node flex items-center justify-center font-black",compact?"h-5 w-5 text-[7px]":"h-16 w-16 text-2xl",done?"done":"",current?"current":""].join(" ")}><span>{i+1}</span></div></div>})}</div></div>{!compact&&<div className="absolute inset-x-0 bottom-[8%] z-30 text-center"><div className="po-score-burst inline-flex items-center gap-5 px-10 py-4"><strong className="text-5xl">{safe}</strong><div className="text-right"><div className="text-xl font-black">מתוך 7</div><div className="text-sm font-bold tracking-[.16em] text-white/70">{safe>=7?"הרכב שלכם":`עוד ${7-safe} לרכב`}</div></div></div></div>}</div>}
 
 function TimerDrive({startedAt}:{startedAt:number|null;compact:boolean}){const[progress,setProgress]=useState(0);useEffect(()=>{if(!startedAt){setProgress(0);return}let raf=0;const tick=()=>{setProgress(Math.max(0,Math.min(1,(Date.now()-startedAt)/TIMER_DURATION_MS)));raf=window.requestAnimationFrame(tick)};tick();return()=>window.cancelAnimationFrame(raf)},[startedAt]);const bottom=progress*(100-9);return <div className="po-game-timer pointer-events-none absolute inset-0 z-40"><div className="po-road-axis absolute inset-y-0 left-1/2 -translate-x-1/2"><div className="po-road-dashes absolute inset-y-0 left-1/2 -translate-x-1/2"/></div><div className="po-game-timer-car absolute left-1/2 -translate-x-1/2" style={{bottom:`${bottom}%`}}><div className="relative" style={{aspectRatio:"1 / 1.9"}}><div className="po-car-body absolute inset-0"/><div className="po-car-glass absolute inset-x-[18%] top-[16%] h-[26%]"/><div className="po-car-glass absolute inset-x-[18%] bottom-[16%] h-[20%]"/><div className="po-car-lights absolute inset-x-[-30%] -top-[55%] h-[70%]"/></div></div></div>}
