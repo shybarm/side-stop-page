@@ -1,5 +1,4 @@
-/// <reference types="bun" />
-import { describe, expect, test } from 'bun:test';
+import { describe, expect, test } from 'vitest';
 import { convertPairPack, questionFitsSlot } from '../pairPack';
 import { getWarehouse, getQuestions, setPairPack, setQuestions } from '../questionStore';
 const pair = { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', name: 'זוג בדיקה' };
