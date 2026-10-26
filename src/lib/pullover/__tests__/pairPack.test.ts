@@ -1,3 +1,4 @@
+/// <reference types="bun" />
 import { describe, expect, test } from 'bun:test';
 import { convertPairPack, questionFitsSlot } from '../pairPack';
 import { getWarehouse, getQuestions, setPairPack, setQuestions } from '../questionStore';
