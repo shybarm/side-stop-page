@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Pair imports use a separate persisted pack, never the test warehouse; retain all reserves with their round and start the seven-slot order from one question per round. Private bank reads require the existing ISO game-role key server-side before using the shared export secret.
 - Local game state (`src/lib/pullover/gameStore.ts`) stays authoritative and offline-capable; cross-computer ISO sync is a separate background layer (`src/lib/iso/publisher.ts`) that subscribes to it and must never block local controls.
 - All ISO session reads/writes go through server functions in `src/lib/iso/iso.functions.ts`, which call SECURITY DEFINER SQL functions granted only to service_role; role (game/director/output) is enforced in SQL by per-role key hashes — tables have RLS with no client access.
 - Elimination, lock snapshots, event dedupe and version checks happen atomically inside SQL functions (`iso_game_publish`, `iso_place`, `iso_resolve`) so retries and replays cannot double-apply.

@@ -5,13 +5,13 @@ import { ANSWER_KEYS, type AnswerKey, type Question } from "./types";
 const KEY = "pullover:questions:v1";
 const CHANNEL = "pullover:questions";
 const PACK_KEY = "pullover:pack:v1";
-export interface PairPack { pairId: string; pairName: string; questions: Question[]; loadedAt: number }
+export interface PairPack { pairId: string; pairName: string; questions: Question[]; order: number[]; loadedAt: number }
 let pack: PairPack | null | undefined;
 function readPack(): PairPack | null {
   if (typeof window === "undefined") return null;
   try { const p = JSON.parse(localStorage.getItem(PACK_KEY) || "null"); return p && Array.isArray(p.questions) && p.questions.length ? p : null; } catch { return null; }
 }
-export function getPairPack(): PairPack | null { if (pack === undefined) pack = readPack(); return pack; }
+export function getPairPack(): PairPack | null { if (typeof window === "undefined") return null; if (pack === undefined) pack = readPack(); return pack; }
 /** Loads a couple's assigned questions as the active game list; the test warehouse is kept untouched. */
 export function setPairPack(next: PairPack | null) {
   pack = next;

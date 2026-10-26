@@ -1,4 +1,6 @@
 # Roadmap
+- [x] Add pair-pack loading separate from the test warehouse, including all assigned reserves and seven-round selection; guard private exports using existing game-role authorization
+- [ ] Enable and verify live pair loading after the export endpoint and matching secret are installed/published in the source project (cannot write another project from this chat)
 - [x] Apply logo-inspired chrome/cobalt/violet presentation to existing board, timer, transitions, progress, preview and shared remotes; verify full-size and compact displays without deploying
 - [x] Remove game-screen wiper hardware and narrow the timer road/car to the gap between windows, hiding them under the central question; verified live timing state, zero game/preview wipers, 2% road width and screenshot with unobscured question
 - [x] Shape the game display into four concave glass windows around a centered question, matching the supplied reference; verified control-to-game question display, golden lock, three cleared wrong answers, fixed correct position, compact preview and narrow viewport without page errors
