@@ -11,7 +11,7 @@ export function GameDisplay({ state, question, compact = false }: GameDisplayPro
   const showAnswers = Boolean(question) && phase !== "idle";
   return <div dir="rtl" className={["po-stage po-tv-stage po-breathe po-concave-board relative h-full w-full overflow-hidden", phase === "locked" ? "po-whole-board-locked" : "", compact ? "is-compact" : ""].join(" ")}>
     <BroadcastLights />
-    {(phase === "timing" || (phase === "locked" && state.timerStartedAt)) && <TimerDrive startedAt={state.timerStartedAt} compact={compact} frozen={phase === "locked"} />}
+    {phase === "timing" && <TimerDrive startedAt={state.timerStartedAt} compact={compact} />}
     {phase === "locked" && <div className="po-lock-overlay pointer-events-none absolute inset-0 z-20" />}
     <div className="po-concave-grid">
       {ANSWER_KEYS.map((key, index) => <AnswerLane key={key} letter={key} text={question && active.includes(key) ? answerOf(question, key) : ""} phase={phase} isCorrect={question?.correctAnswer === key} wipeSeq={wipeSeq} index={index} compact={compact} concave empty={!showAnswers || !active.includes(key)} />)}
