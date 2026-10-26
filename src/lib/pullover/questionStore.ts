@@ -5,11 +5,12 @@ import { ANSWER_KEYS, type AnswerKey, type Question } from "./types";
 const KEY = "pullover:questions:v1";
 const CHANNEL = "pullover:questions";
 const PACK_KEY = "pullover:pack:v1";
-export interface PairPack { pairId: string; pairName: string; questions: Question[]; order: number[]; loadedAt: number }
+export interface PairPack { pairId: string; pairName: string; questions: Question[]; order: number[]; loadedAt: number; missing?: number[]; skipped?: number }
 let pack: PairPack | null | undefined;
 function readPack(): PairPack | null {
   if (typeof window === "undefined") return null;
-  try { const p = JSON.parse(localStorage.getItem(PACK_KEY) || "null"); return p && Array.isArray(p.questions) && p.questions.length ? p : null; } catch { return null; }
+  // An incomplete (even empty) pair stays active so the operator can refresh it as questions get assigned.
+  try { const p = JSON.parse(localStorage.getItem(PACK_KEY) || "null"); return p && typeof p.pairId === "string" && Array.isArray(p.questions) && Array.isArray(p.order) ? p : null; } catch { return null; }
 }
 export function getPairPack(): PairPack | null { if (typeof window === "undefined") return null; if (pack === undefined) pack = readPack(); return pack; }
 /** Loads a couple's assigned questions as the active game list; the test warehouse is kept untouched. */
