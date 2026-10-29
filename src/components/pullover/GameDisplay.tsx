@@ -1,4 +1,5 @@
 // Game board: answers go up first (windshield wipe-in), then the question band.
+import { visibleAnswerCount } from "@/lib/pullover/presentation";
 import { AnswerLane } from "./AnswerLane";
 import { useEffect,useState,useId } from "react";
 import { ANSWER_KEYS,activeAnswerKeys,answerOf,TIMER_DURATION_MS,type AnswerKey,type GameState,type Question } from "@/lib/pullover/types";
@@ -9,17 +10,18 @@ export function GameDisplay({ state, question, compact = false }: GameDisplayPro
   if (phase === "progress") return <ProgressScreen completed={questionIndex + 1} compact={compact} />;
   const active = activeAnswerKeys(questionIndex);
   const showAnswers = Boolean(question) && phase !== "idle";
+  const count = visibleAnswerCount(state);
   return <div dir="rtl" className={["po-stage po-tv-stage po-breathe po-concave-board relative h-full w-full overflow-hidden", phase === "locked" ? "po-whole-board-locked" : "", compact ? "is-compact" : ""].join(" ")}>
     <BroadcastLights />
     {phase === "timing" && <TimerDrive startedAt={state.timerStartedAt} compact={compact} />}
     {phase === "locked" && <div className="po-lock-overlay pointer-events-none absolute inset-0 z-20" />}
     <div className="po-concave-grid">
-      {ANSWER_KEYS.map((key, index) => <AnswerLane key={key} letter={key} text={question && active.includes(key) ? answerOf(question, key) : ""} phase={phase} isCorrect={question?.correctAnswer === key} wipeSeq={wipeSeq} index={index} compact={compact} concave empty={!showAnswers || !active.includes(key)} />)}
+      {ANSWER_KEYS.map((key, index) => <AnswerLane key={key} letter={key} text={question && active.includes(key) ? answerOf(question, key) : ""} phase={phase} isCorrect={question?.correctAnswer === key} wipeSeq={wipeSeq} index={index} compact={compact} concave empty={!showAnswers || !active.includes(key) || index >= count} />)}
     </div>
-    <section className={`po-concave-question ${phase === "idle" || phase === "intro" || !question ? "po-question-empty" : "po-question-bridge"}`} aria-label="שאלת המשחק">
+    <section key={phase === "idle" || phase === "intro" ? "empty" : `question-${state.airedAt ?? questionIndex}`} className={`po-concave-question ${phase === "idle" || phase === "intro" || !question ? "po-question-empty" : "po-question-bridge po-question-drive-in"}`} aria-label="שאלת המשחק">
       {phase === "idle" || phase === "intro" || !question
         ? null
-        : <h1 className="po-rise po-question-type">{question.text}</h1>}
+        : <h1 className="po-question-type">{question.text}</h1>}
     </section>
   </div>;
 }
