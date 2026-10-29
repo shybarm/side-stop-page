@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Database, Search, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ export function BankQuestionBrowser() {
   const [source, setSource] = useState(""), [questions, setQuestions] = useState<Question[]>([]);
   const [query, setQuery] = useState(""), [error, setError] = useState("");
   const [selected, setSelected] = useState<Question | null>(null);
+  const target = useRef<{ questionIndex: number; gameId: number | undefined } | null>(null);
   const credentials = () => {
     const c = publisher.creds();
     if (!c) { toast.error("פתח סשן ISO לפני כניסה למאגר"); return null; }
@@ -34,6 +35,7 @@ export function BankQuestionBrowser() {
   };
   const show = async () => {
     const auth = credentials(); if (!auth) return;
+    const current = getGameState(); target.current = { questionIndex: current.questionIndex, gameId: current.gameId };
     setOpen(true); setBusy(true); setError(""); setQuestions([]); setSource(""); setSelected(null); setQuery("");
     try { setPairs(await listPairs({ data: auth })); }
     catch (e) { setError((e as Error).message); }
@@ -44,7 +46,7 @@ export function BankQuestionBrowser() {
   const commit = () => {
     if (!selected) return;
     const current = getGameState();
-    if (current.questionIndex !== state.questionIndex || !importNextBankQuestion(selected)) {
+    if (current.questionIndex !== target.current?.questionIndex || current.gameId !== target.current?.gameId || !importNextBankQuestion(selected)) {
       toast.error("השאלה אינה מתאימה לסבב הבא או שכבר הוצגה"); return;
     }
     toast.success(`השאלה נשמרה לסבב ${current.questionIndex + 2}`); setOpen(false);
