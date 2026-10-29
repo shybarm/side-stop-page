@@ -287,3 +287,14 @@ body.po-iso-transparent{background:transparent!important}
 .po-fog-lock{position:absolute;top:64%;left:50%;transform:translate(-50%,-50%);width:4cqh;height:4cqh;color:var(--po-silver);opacity:.8;filter:drop-shadow(0 1px 2px var(--po-lock-depth))}
 @keyframes po-fog-drift{from{transform:translateX(-4%)}to{transform:translateX(4%)}}
 @media(prefers-reduced-motion:reduce){.po-window-fog::after{animation:none}}
+
+/* Opening sequence: breathing logo, sparkles, first-question sign */
+.po-logo-breathe{animation:po-logo-breathe 4.2s ease-in-out infinite,po-logo-in .9s ease-out both}
+@keyframes po-logo-breathe{0%,100%{transform:scale(1);filter:drop-shadow(0 0 1.2cqh color-mix(in oklab,var(--po-cyan,#63DCFF) 35%,transparent))}50%{transform:scale(1.025);filter:drop-shadow(0 0 3cqh color-mix(in oklab,var(--po-violet,#8850FF) 55%,transparent))}}
+@keyframes po-logo-in{from{opacity:0}to{opacity:1}}
+.po-logo-sparkles i{position:absolute;width:.7cqh;height:.7cqh;min-width:3px;min-height:3px;border-radius:50%;background:#E8EEFF;box-shadow:0 0 1.4cqh #63DCFF;opacity:0;animation:po-sparkle 3s ease-in-out infinite}
+@keyframes po-sparkle{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:.95;transform:scale(1.4)}}
+.po-first-sign{animation:po-sign-pop .55s cubic-bezier(.2,1.4,.4,1) both}
+.po-first-sign span{display:inline-block;padding:4cqh 9cqw;font-size:13cqh;font-weight:900;color:#fff;border:.8cqh solid #E8EEFF;border-radius:3cqh;background:linear-gradient(160deg,#245BFF,#111A52 70%);box-shadow:0 0 6cqh color-mix(in oklab,#63DCFF 55%,transparent),inset 0 0 3cqh color-mix(in oklab,#8850FF 50%,transparent);text-shadow:0 .4cqh 1.2cqh #111A52}
+@keyframes po-sign-pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.po-logo-breathe,.po-logo-sparkles i,.po-first-sign{animation:none;opacity:1}}
