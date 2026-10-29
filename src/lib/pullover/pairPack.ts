@@ -3,7 +3,7 @@ import { ANSWER_KEYS, answerCountForQuestion, type Question } from "./types";
 
 export const bankQuestionSchema = z.object({
   id: z.string().min(1), round: z.number().int().min(1).max(7),
-  text: z.string().min(1), category: z.string().nullable(),
+  text: z.string().min(1), category: z.string().nullable(), difficulty: z.number().int().min(1).max(5).nullable().optional(),
   options: z.array(z.object({ text: z.string().min(1), correct: z.boolean() })).min(2).max(4),
 });
 export const bankPackSchema = z.object({
@@ -25,7 +25,8 @@ export function convertPairPack(input: unknown) {
     questions.push({ id: `bank_${q.id}`, text: q.text, round: q.round,
       answerA: q.options[0]?.text ?? "", answerB: q.options[1]?.text ?? "",
       answerC: q.options[2]?.text ?? "", answerD: q.options[3]?.text ?? "",
-      correctAnswer, category: [`סבב ${q.round}`, q.category].filter(Boolean).join(" · ") });
+      correctAnswer, category: [`סבב ${q.round}`, q.category].filter(Boolean).join(" · "),
+      ...(q.category ? { topic: q.category } : {}), ...(q.difficulty ? { difficulty: q.difficulty } : {}) });
   }
   const order = Array.from({ length: 7 }, (_, slot) => questions.findIndex((q) => questionFitsSlot(q, slot)));
   const missing = order.flatMap((i, slot) => (i < 0 ? [slot + 1] : []));
@@ -43,7 +44,7 @@ export function convertGeneralBank(input: unknown) {
     if (!parsed.success || parsed.data.options.filter(o => o.correct).length !== 1) { skipped++; continue; }
     const q = parsed.data, correctAnswer = ANSWER_KEYS[q.options.findIndex(o => o.correct)];
     if (!correctAnswer) { skipped++; continue; }
-    questions.push({ id: `bank_${q.id}`, text: q.text, ...(q.category ? { category: q.category } : {}),
+    questions.push({ id: `bank_${q.id}`, text: q.text, ...(q.category ? { category: q.category, topic: q.category } : {}), ...(q.difficulty ? { difficulty: q.difficulty } : {}),
       answerA: q.options[0]?.text ?? "", answerB: q.options[1]?.text ?? "",
       answerC: q.options[2]?.text ?? "", answerD: q.options[3]?.text ?? "", correctAnswer });
   }
@@ -96,4 +97,20 @@ export function mergeRefresh(old: { questions: Question[] }, fresh: ConvertedPac
   });
   const missing = order.flatMap((i, slot) => (i < 0 ? [slot + 1] : []));
   return { ...fresh, questions, order, missing };
+}
+
+export const optionKeys = (q: Question) => ANSWER_KEYS.filter(k => [q.answerA, q.answerB, q.answerC, q.answerD][ANSWER_KEYS.indexOf(k)]?.trim());
+
+/** A bank question can serve a slot when its round matches and it has at least that many options (extra ones are dropped by the operator). */
+export function bankFitsSlot(q: Question, slot: number) {
+  return slot < 7 && (!q.round || q.round === slot + 1) && optionKeys(q).length >= answerCountForQuestion(slot);
+}
+
+/** Operator-chosen answer removal, like the bank's assignment step: the correct answer can never be removed; remaining answers keep their order. */
+export function dropOptions(q: Question, remove: string[]): Question | null {
+  if (remove.includes(q.correctAnswer)) return null;
+  const kept = optionKeys(q).filter(k => !remove.includes(k));
+  const texts = kept.map(k => [q.answerA, q.answerB, q.answerC, q.answerD][ANSWER_KEYS.indexOf(k)]);
+  return { ...q, answerA: texts[0] ?? "", answerB: texts[1] ?? "", answerC: texts[2] ?? "", answerD: texts[3] ?? "",
+    correctAnswer: ANSWER_KEYS[kept.indexOf(q.correctAnswer)] ?? q.correctAnswer };
 }
