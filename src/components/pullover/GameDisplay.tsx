@@ -54,7 +54,7 @@ function StopTransition({compact}:{compact:boolean}){
   const nx=-4800*Math.sin(rad),ny=4800*Math.cos(rad);
   const src="https://d2ol7oe51mr4n9.cloudfront.net/user_3K6YEupciLxKIiwN9kh23unuijM/b55a1f97-3d1f-41e5-9217-99c4afc08acf.png";
   const blade="155,520 1510,680 1550,740 1540,803 155,803";
-  return <div className="po-stop-transition relative h-full w-full overflow-hidden"><BroadcastLights/><div className="po-wiping-brand">
+  return <div className="po-stop-transition relative h-full w-full overflow-hidden"><BroadcastLights/><div className="po-wiping-brand" style={{opacity:fade,filter:`blur(${ease*6}px)`}}>
     <svg viewBox="0 0 1920 803" role="img" aria-label="עצור בצד" style={{width:"100%",height:"100%",overflow:"visible"}}>
       <defs>
         <clipPath id={id+"blade"}><polygon points={blade}/></clipPath>
