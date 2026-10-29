@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Add general Bodeket bank browsing and safe next-question import, including questions belonging to another pair; verify available source export support.
 - [x] Add pre-lock previous-stage controls, automatic/manual answer entry and smooth left-to-center question arrival; 14 tests pass, control/game flow verified at full-size and compact, live ISO 1→2→3→4 visibility and question rewind read back successfully
 - [x] Add pair-pack loading separate from the test warehouse, including all assigned reserves and seven-round selection; guard private exports using existing game-role authorization
 - [ ] Enable and verify live pair loading after the export endpoint and matching secret are installed/published in the source project (cannot write another project from this chat)
