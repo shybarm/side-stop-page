@@ -37,8 +37,13 @@ function StopTransition({compact}:{compact:boolean}){
   const id=useId().replace(/:/g,"");
   const [elapsed,setElapsed]=useState(0);
   useEffect(()=>{let raf=0;const start=performance.now();const tick=(now:number)=>{const ms=Math.min(2100,now-start);setElapsed(ms);if(ms<2100)raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);return()=>cancelAnimationFrame(raf)},[]);
-  const angle=Math.max(0,Math.min(1,(elapsed-250)/1250))*210;
-  const exit=Math.max(0,Math.min(1,(elapsed-1500)/550))*2400;
+  // Sweep completes fully first, then the blade glides out while everything fades softly.
+  const sweep=Math.max(0,Math.min(1,(elapsed-200)/1150));
+  const angle=(1-Math.pow(1-sweep,3))*210;
+  const out=Math.max(0,Math.min(1,(elapsed-1400)/650));
+  const ease=out*out*(3-2*out);
+  const exit=ease*700;
+  const fade=1-ease;
   // One angle drives both the actual blade cutout and the hard erase boundary.
   const rad=Math.min(angle,180)*Math.PI/180;
   const px=1485,py=835;
