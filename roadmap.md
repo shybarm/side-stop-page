@@ -1,4 +1,5 @@
 # Roadmap
+- [ ] Add safe previous-stage controls, automatic/manual answer entry and smooth left-to-center question arrival; test local controls and presentation
 - [x] Add pair-pack loading separate from the test warehouse, including all assigned reserves and seven-round selection; guard private exports using existing game-role authorization
 - [ ] Enable and verify live pair loading after the export endpoint and matching secret are installed/published in the source project (cannot write another project from this chat)
 - [x] Apply logo-inspired chrome/cobalt/violet presentation to existing board, timer, transitions, progress, preview and shared remotes; verify full-size and compact displays without deploying
