@@ -43,7 +43,7 @@ export function convertGeneralBank(input: unknown) {
     if (!parsed.success || parsed.data.options.filter(o => o.correct).length !== 1) { skipped++; continue; }
     const q = parsed.data, correctAnswer = ANSWER_KEYS[q.options.findIndex(o => o.correct)];
     if (!correctAnswer) { skipped++; continue; }
-    questions.push({ id: `bank_${q.id}`, text: q.text, category: q.category ?? undefined,
+    questions.push({ id: `bank_${q.id}`, text: q.text, ...(q.category ? { category: q.category } : {}),
       answerA: q.options[0]?.text ?? "", answerB: q.options[1]?.text ?? "",
       answerC: q.options[2]?.text ?? "", answerD: q.options[3]?.text ?? "", correctAnswer });
   }

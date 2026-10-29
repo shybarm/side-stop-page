@@ -23,7 +23,7 @@ export function importNextBankQuestion(question: Question) {
   const replacement = prepareBankReplacement(getQuestions(), s.questionOrder, s.questionIndex, question);
   if (!replacement) return false;
   setPairPack({ pairId: pack?.pairId ?? "", pairName: pack?.pairName ?? (s.teamName || "בחירה מהמאגר"),
-    ...replacement, loadedAt: Date.now(), skipped: pack?.skipped });
+    ...replacement, loadedAt: Date.now(), ...(pack?.skipped !== undefined ? { skipped: pack.skipped } : {}) });
   commit({ questionOrder: replacement.order });
   return true;
 }
