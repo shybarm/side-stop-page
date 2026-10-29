@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { convertGeneralBank, convertPairPack, mergeRefresh, prepareBankReplacement, questionFitsSlot } from '../pairPack';
+import { bankFitsSlot, dropOptions, convertGeneralBank, convertPairPack, mergeRefresh, prepareBankReplacement, questionFitsSlot } from '../pairPack';
 import { getWarehouse, getQuestions, setPairPack, setQuestions } from '../questionStore';
 const pair = { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', name: 'זוג בדיקה' };
 const row = (round: number, id: string) => ({ id, round, text: `שאלה ${id}`, category: null, options: Array.from({length: round < 4 ? 4 : round < 7 ? 3 : 2}, (_, i) => ({text:`תשובה ${i}`,correct:i===0})) });
@@ -68,4 +68,13 @@ describe('general bank replacements', () => {
    const p=pack(),q=p.questions[0];if(!q)throw Error('fixture');
    expect(prepareBankReplacement(p.questions,p.order,6,q)).toBeNull();
  });
+});
+
+describe('dropping an extra answer for a 3-answer round', () => {
+ const four = { id:'g', text:'ש', answerA:'א', answerB:'ב', answerC:'ג', answerD:'ד', correctAnswer:'C' as const };
+ test('a 4-answer bank question is offered for question 4', () => { expect(bankFitsSlot(four, 3)).toBe(true); });
+ test('removing B leaves three answers with the correct one remapped', () => {
+   const q = dropOptions(four, ['B']); expect([q?.answerA,q?.answerB,q?.answerC,q?.answerD]).toEqual(['א','ג','ד','']); expect(q?.correctAnswer).toBe('B'); });
+ test('the correct answer can never be removed', () => { expect(dropOptions(four, ['C'])).toBeNull(); });
+ test('general bank keeps difficulty and topic', () => { const r = convertGeneralBank({questions:[{id:'1',text:'ש',category:'ספורט',difficulty:3,options:[{text:'א',correct:true},{text:'ב',correct:false}]}]}); expect(r.questions[0]?.difficulty).toBe(3); expect(r.questions[0]?.topic).toBe('ספורט'); });
 });
