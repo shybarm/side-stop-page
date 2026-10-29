@@ -37,8 +37,13 @@ function StopTransition({compact}:{compact:boolean}){
   const id=useId().replace(/:/g,"");
   const [elapsed,setElapsed]=useState(0);
   useEffect(()=>{let raf=0;const start=performance.now();const tick=(now:number)=>{const ms=Math.min(2100,now-start);setElapsed(ms);if(ms<2100)raf=requestAnimationFrame(tick)};raf=requestAnimationFrame(tick);return()=>cancelAnimationFrame(raf)},[]);
-  const angle=Math.max(0,Math.min(1,(elapsed-250)/1250))*210;
-  const exit=Math.max(0,Math.min(1,(elapsed-1500)/550))*2400;
+  // Sweep completes fully first, then the blade glides out while everything fades softly.
+  const sweep=Math.max(0,Math.min(1,(elapsed-200)/1150));
+  const angle=(1-Math.pow(1-sweep,3))*210;
+  const out=Math.max(0,Math.min(1,(elapsed-1400)/650));
+  const ease=out*out*(3-2*out);
+  const exit=ease*700;
+  const fade=1-ease;
   // One angle drives both the actual blade cutout and the hard erase boundary.
   const rad=Math.min(angle,180)*Math.PI/180;
   const px=1485,py=835;
@@ -49,7 +54,7 @@ function StopTransition({compact}:{compact:boolean}){
   const nx=-4800*Math.sin(rad),ny=4800*Math.cos(rad);
   const src="https://d2ol7oe51mr4n9.cloudfront.net/user_3K6YEupciLxKIiwN9kh23unuijM/b55a1f97-3d1f-41e5-9217-99c4afc08acf.png";
   const blade="155,520 1510,680 1550,740 1540,803 155,803";
-  return <div className="po-stop-transition relative h-full w-full overflow-hidden"><BroadcastLights/><div className="po-wiping-brand">
+  return <div className="po-stop-transition relative h-full w-full overflow-hidden"><BroadcastLights/><div className="po-wiping-brand" style={{opacity:fade,filter:`blur(${ease*6}px)`}}>
     <svg viewBox="0 0 1920 803" role="img" aria-label="עצור בצד" style={{width:"100%",height:"100%",overflow:"visible"}}>
       <defs>
         <clipPath id={id+"blade"}><polygon points={blade}/></clipPath>
