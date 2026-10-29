@@ -4,6 +4,8 @@ import type { AnswerKey, GamePhase, Question } from "@/lib/pullover/types";
 /** Game state as published to the shared session (timer already in server time). */
 export interface PublishedGameState {
   phase: GamePhase;
+  answerEntryMode?: 'automatic' | 'manual';
+  visibleAnswers?: number;
   questionIndex: number;
   timerStartedAtServer: number | null;
   timerDurationMs: number;
