@@ -112,7 +112,7 @@ function OpeningRoad({compact}:{compact:boolean}){
   return wiping?<StopTransition compact={compact}/>:<ProgressScreen completed={0} current={0} compact={compact}/>;
 }
 function LogoIdle({compact}:{compact:boolean}){
-  const frame="M 190 530 L 318 112 Q 340 70 405 68 L 1515 60 Q 1588 60 1612 102 L 1790 500";
+  const frame="M 118 525 L 320 110 Q 345 70 410 70 L 1505 62 Q 1570 62 1595 104 L 1806 520";
   return <div className="po-stop-transition po-logo-idle relative h-full w-full overflow-hidden"><BroadcastLights/><div className="po-logo-sparkles pointer-events-none absolute inset-0">{Array.from({length:14},(_,i)=><i key={i} style={{left:`${8+(i*53)%84}%`,top:`${12+(i*37)%70}%`,animationDelay:`${(i*0.43)%3}s`}}/>)}</div><div className="po-wiping-brand po-logo-breathe"><ShowMark compact={compact}/>
     <svg className="po-frame-lights" viewBox="0 0 1920 819" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       <path d={frame} pathLength={100} className="po-frame-run is-pink"/>
