@@ -6,7 +6,7 @@ export const TIMER_DURATION_MS = 60000;
 export function normalizeTimerDuration(ms?: number): number { return ms !== undefined && Number.isFinite(ms) && ms > 0 ? Math.round(ms) : TIMER_DURATION_MS; }
 export function answerCountForQuestion(index: number): 2 | 3 | 4 { return index < 3 ? 4 : index < 6 ? 3 : 2; }
 export function activeAnswerKeys(index: number): AnswerKey[] { return ANSWER_KEYS.slice(0, answerCountForQuestion(index)); }
-export interface Question { id:string; text:string; answerA:string; answerB:string; answerC:string; answerD:string; correctAnswer:AnswerKey; category?:string; round?:number; bankImported?:boolean; }
+export interface Question { id:string; text:string; answerA:string; answerB:string; answerC:string; answerD:string; correctAnswer:AnswerKey; category?:string; topic?:string; difficulty?:number; round?:number; bankImported?:boolean; }
 export type GamePhase = "idle" | "intro" | "answers" | "timing" | "locked" | "wiping" | "revealed" | "transition" | "progress";
 export interface GameState { phase:GamePhase; questionIndex:number; questionOrder:number[]; lockedAnswer:AnswerKey|null; wipeSeq:number; timerStartedAt:number|null; updatedAt:number; /** Unique per airing of a question (load/next/jump), so re-running a slot is a new ISO question. */ airedAt?:number|null; /** Name of the team currently playing (session name). */ teamName?:string; /** Changes on every "new game" so all screens (incl. ISO plates) restart. */ gameId?:number; }
 export const NEW_GAME_PASSWORD = "1234";
