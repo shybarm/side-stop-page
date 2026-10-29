@@ -9,9 +9,7 @@ export function GameDisplay({ state, question, compact = false }: GameDisplayPro
   if (phase === "transition") return <StopTransition compact={compact} />;
   if (phase === "progress") return <ProgressScreen completed={questionIndex + 1} compact={compact} />;
   if (phase === "idle" && questionIndex === 0) {
-    const step = state.openingStep ?? 0;
-    if (step === 1) return <OpeningRoad compact={compact} />;
-    if (step === 2) return <FirstQuestionSign compact={compact} />;
+    if ((state.openingStep ?? 0) === 1) return <OpeningRoad compact={compact} />;
     return <LogoIdle compact={compact} />;
   }
   const active = activeAnswerKeys(questionIndex);
@@ -119,8 +117,4 @@ function LogoIdle({compact}:{compact:boolean}){
       <path d={frame} pathLength={100} className="po-frame-run is-cyan"/>
       <path d={frame} pathLength={100} className="po-frame-run is-dots"/>
     </svg></div></div>;
-}
-function FirstQuestionSign({compact}:{compact:boolean}){
-  useEffect(()=>{if(compact)return;try{const C=window.AudioContext||(window as unknown as {webkitAudioContext:typeof AudioContext}).webkitAudioContext;const ctx=new C();const o=ctx.createOscillator(),g=ctx.createGain();o.type="square";o.frequency.value=1000;g.gain.setValueAtTime(0.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.25,ctx.currentTime+0.02);g.gain.setValueAtTime(0.25,ctx.currentTime+0.55);g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.6);o.connect(g).connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.62);setTimeout(()=>ctx.close(),1000)}catch{/* audio optional */}},[compact]);
-  return <div dir="rtl" className="po-stop-transition relative flex h-full w-full items-center justify-center overflow-hidden"><BroadcastLights/><div className="po-first-sign relative z-10 text-center"><span>לשאלה הראשונה</span></div></div>;
 }
