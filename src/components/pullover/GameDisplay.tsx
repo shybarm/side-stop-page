@@ -10,7 +10,7 @@ export function GameDisplay({ state, question, compact = false }: GameDisplayPro
   if (phase === "progress") return <ProgressScreen completed={questionIndex + 1} compact={compact} />;
   if (phase === "idle" && questionIndex === 0) {
     const step = state.openingStep ?? 0;
-    if (step === 1) return <ProgressScreen completed={0} current={0} compact={compact} />;
+    if (step === 1) return <OpeningRoad compact={compact} />;
     if (step === 2) return <FirstQuestionSign compact={compact} />;
     return <LogoIdle compact={compact} />;
   }
@@ -106,13 +106,19 @@ function TimerDrive({startedAt,duration}:{startedAt:number|null;duration:number;
   </div>;
 }
 
+function OpeningRoad({compact}:{compact:boolean}){
+  const [wiping,setWiping]=useState(true);
+  useEffect(()=>{const t=setTimeout(()=>setWiping(false),2100);return()=>clearTimeout(t)},[]);
+  return wiping?<StopTransition compact={compact}/>:<ProgressScreen completed={0} current={0} compact={compact}/>;
+}
 function LogoIdle({compact}:{compact:boolean}){
-  const [wipe,setWipe]=useState(0);
-  useEffect(()=>{const t=setInterval(()=>setWipe(w=>w+1),20000);return()=>clearInterval(t)},[]);
-  const [wiping,setWiping]=useState(false);
-  useEffect(()=>{if(!wipe)return;setWiping(true);const t=setTimeout(()=>setWiping(false),2300);return()=>clearTimeout(t)},[wipe]);
-  if(wiping)return <StopTransition key={wipe} compact={compact}/>;
-  return <div className="po-stop-transition po-logo-idle relative h-full w-full overflow-hidden"><BroadcastLights/><div className="po-logo-sparkles pointer-events-none absolute inset-0">{Array.from({length:14},(_,i)=><i key={i} style={{left:`${8+(i*53)%84}%`,top:`${12+(i*37)%70}%`,animationDelay:`${(i*0.43)%3}s`}}/>)}</div><div className="po-wiping-brand po-logo-breathe"><ShowMark compact={compact}/></div></div>;
+  const frame="M 190 530 L 318 112 Q 340 70 405 68 L 1515 60 Q 1588 60 1612 102 L 1790 500";
+  return <div className="po-stop-transition po-logo-idle relative h-full w-full overflow-hidden"><BroadcastLights/><div className="po-logo-sparkles pointer-events-none absolute inset-0">{Array.from({length:14},(_,i)=><i key={i} style={{left:`${8+(i*53)%84}%`,top:`${12+(i*37)%70}%`,animationDelay:`${(i*0.43)%3}s`}}/>)}</div><div className="po-wiping-brand po-logo-breathe"><ShowMark compact={compact}/>
+    <svg className="po-frame-lights" viewBox="0 0 1920 819" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <path d={frame} pathLength={100} className="po-frame-run is-pink"/>
+      <path d={frame} pathLength={100} className="po-frame-run is-cyan"/>
+      <path d={frame} pathLength={100} className="po-frame-run is-dots"/>
+    </svg></div></div>;
 }
 function FirstQuestionSign({compact}:{compact:boolean}){
   useEffect(()=>{if(compact)return;try{const C=window.AudioContext||(window as unknown as {webkitAudioContext:typeof AudioContext}).webkitAudioContext;const ctx=new C();const o=ctx.createOscillator(),g=ctx.createGain();o.type="square";o.frequency.value=1000;g.gain.setValueAtTime(0.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.25,ctx.currentTime+0.02);g.gain.setValueAtTime(0.25,ctx.currentTime+0.55);g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.6);o.connect(g).connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.62);setTimeout(()=>ctx.close(),1000)}catch{/* audio optional */}},[compact]);
