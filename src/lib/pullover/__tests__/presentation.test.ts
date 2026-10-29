@@ -1,8 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { previousStage, visibleAnswerCount } from '../presentation';
-import { type GameState } from '../types';
+import { normalizeTimerDuration, type GameState } from '../types';
 const base: GameState = {phase:'intro',questionIndex:0,questionOrder:[0,1,2,3,4,5,6],lockedAnswer:null,wipeSeq:0,timerStartedAt:null,updatedAt:1};
 describe('stage presentation',()=>{
+  test('timer defaults to one minute',()=>{expect(normalizeTimerDuration()).toBe(60000)});
+  test('explicit timer duration overrides the minute',()=>{expect(normalizeTimerDuration(90000)).toBe(90000)});
   test('question returns to answers-only without changing its airing',()=>{
     const s={...base,phase:'answers' as const,airedAt:100};
     expect({...s,...previousStage(s)}).toMatchObject({phase:'intro',airedAt:100,questionIndex:0});

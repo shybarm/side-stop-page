@@ -247,7 +247,9 @@ body.po-iso-transparent{background:transparent!important}
 :root{--po-timer-trail:var(--po-red);--po-timer-trail-glow:color-mix(in oklab,var(--po-red) 45%,transparent)}
 .po-question-lap{position:absolute;inset:-1.5cqh -1.5cqh;z-index:2}
 .po-lap-svg{position:absolute;inset:0;overflow:visible}
-.po-lap-trail{fill:none;stroke:var(--po-timer-trail);stroke-width:4;stroke-linecap:round;filter:drop-shadow(0 0 4px var(--po-timer-trail-glow))}
+.po-lap-trail{fill:none;stroke:var(--po-timer-trail);stroke-width:4.48;stroke-linecap:round;filter:drop-shadow(0 0 4px var(--po-timer-trail-glow));animation:po-trail-breathe 3s ease-in-out infinite}
+@keyframes po-trail-breathe{0%,100%{filter:drop-shadow(0 0 3px var(--po-timer-trail-glow));opacity:.8}50%{filter:drop-shadow(0 0 8px var(--po-timer-trail-glow));opacity:1}}
+@media(prefers-reduced-motion:reduce){.po-lap-trail{animation:none}}
 .po-lap-car{position:absolute;width:2.5cqh;height:4.6cqh;will-change:transform;z-index:3}
 .po-lap-car .po-car-body{box-shadow:0 0 0 1px var(--po-deep-blue),0 0 8px var(--po-cyan)}
 
