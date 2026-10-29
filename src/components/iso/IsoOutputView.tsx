@@ -26,7 +26,7 @@ const ROW_WIDTH: Record<number, number> = { 4: 92, 3: 78, 2: 58 };
 export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot | null; serverNow: () => number; compact?: boolean; layout?: LayoutBox }) {
   const st = snap?.game?.state, q = snap?.game?.question as Question | null | undefined;
   const phase = st?.phase ?? "idle", idx = st?.questionIndex ?? 0, keys = activeAnswerKeys(idx);
-  const visibleCount = visibleAnswerCount({phase, questionIndex:idx, answerEntryMode:st?.answerEntryMode, visibleAnswers:st?.visibleAnswers});
+  const visibleCount = visibleAnswerCount({phase, questionIndex:idx, answerEntryMode:st?.answerEntryMode ?? 'automatic', visibleAnswers:st?.visibleAnswers ?? 1});
   const placements = snap?.iso?.placements ?? {};
   const plates = snap?.plates ?? [];
   const revealed = REVEAL.has(phase), correct = (snap?.iso?.correct_answer ?? (revealed ? q?.correctAnswer : null)) as AnswerKey | null;
