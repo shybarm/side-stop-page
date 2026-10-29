@@ -230,3 +230,17 @@ body.po-iso-transparent{background:transparent!important}
   100%{transform:translate3d(0,-50%,0) rotate(0)}
 }
 @media(prefers-reduced-motion:reduce){.po-question-drive-in{animation:none;transform:translateY(-50%)}}
+
+/* Lock is a closed, neutral steel state, not a successful reveal. */
+:root{--po-lock-edge:var(--po-silver);--po-lock-depth:color-mix(in oklab,var(--po-steel) 70%,var(--po-deep-blue));--po-lock-glow:color-mix(in oklab,var(--po-silver) 16%,transparent);--po-lock-glass:linear-gradient(160deg,var(--po-lock-depth),var(--po-deep-blue));--iso-lock-glow:var(--po-lock-glow);--iso-lock-glass:var(--po-lock-glass)}
+.po-whole-board-locked{background:radial-gradient(ellipse at 50% 40%,var(--po-lock-depth),var(--po-deep-blue) 68%)!important}
+.po-lock-overlay{border:3px solid var(--po-lock-edge);box-shadow:inset 0 0 30px var(--po-lock-glow);animation:none}
+.po-shield.is-locked{box-shadow:0 0 0 2px var(--po-lock-edge),0 0 0 5px var(--po-deep-blue),0 0 18px var(--po-lock-glow)}
+.po-shield.is-locked .po-shield-tint,.po-iso-answer.is-locked .po-shield-tint{background:linear-gradient(160deg,var(--po-lock-glow),transparent 65%)}
+.po-shield.is-locked .po-shield-glass,.po-panel-locked{background:var(--po-lock-glass)}
+.po-panel-locked{border-color:var(--po-lock-edge);box-shadow:inset 0 0 24px var(--po-lock-glow)}
+.po-concave-window.is-locked .po-concave-outline{color:var(--po-lock-edge);filter:drop-shadow(0 0 3px var(--po-lock-glow))}
+.po-concave-window.is-locked .po-concave-highlight{stroke:var(--po-lock-edge);opacity:.45}
+.po-iso-answer.is-locked{box-shadow:0 0 0 .3cqh var(--po-lock-edge),inset 0 0 2cqh var(--po-lock-glow)}
+.po-lock-scan{background:repeating-linear-gradient(135deg,transparent 0 16px,var(--po-lock-glow) 16px 17px);background-size:auto;animation:none;opacity:.35}
+.po-lock-symbol{width:1.15em;height:1.15em;color:var(--po-lock-edge);flex-shrink:0}
