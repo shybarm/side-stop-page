@@ -27,4 +27,5 @@
 - Director placement uses an optimistic, serial client queue with server-version conflict recovery; only acknowledged snapshots reach the clean output, preserving atomic lock/reveal authority while keeping local plate selection immediate.
 - Clean ISO output keeps persistent text and plate layers outside animated CSS masks, because browser-based recording sources may freeze masked layers on their first frame.
 - Concave window geometry is an opt-in presentation mode of AnswerLane shared by the game and control preview; ISO keeps its separate lower-third layout to preserve camera clearance.
+- Round-disabled panes use a distinct inactive presentation flag derived from activeAnswerKeys, not answer-entry visibility; this keeps sealed fog separate from answers awaiting manual entry and from revealed results.
 - Broadcast identity uses semantic material tokens in `src/styles.css` and shared `ShowMark`; game text uses unmasked entry transitions. Result surfaces and all answer text remain unmasked and persistent; ISO masks are reserved for decorative entry glass, while remote elimination stays independent of answer visibility.

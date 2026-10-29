@@ -15,7 +15,7 @@ export function GameDisplay({ state, question, compact = false }: GameDisplayPro
     <BroadcastLights />
     {phase === "locked" && <div className="po-lock-overlay pointer-events-none absolute inset-0 z-20" />}
     <div className="po-concave-grid">
-      {ANSWER_KEYS.map((key, index) => <AnswerLane key={key} letter={key} text={question && active.includes(key) ? answerOf(question, key) : ""} phase={phase} isCorrect={question?.correctAnswer === key} wipeSeq={wipeSeq} index={index} compact={compact} concave empty={!showAnswers || !active.includes(key) || index >= count} />)}
+      {ANSWER_KEYS.map((key, index) => <AnswerLane key={key} letter={key} text={question && active.includes(key) ? answerOf(question, key) : ""} phase={phase} isCorrect={question?.correctAnswer === key} wipeSeq={wipeSeq} index={index} compact={compact} concave inactive={Boolean(question) && !active.includes(key)} empty={!showAnswers || !active.includes(key) || index >= count} />)}
     </div>
     <section key={phase === "idle" || phase === "intro" ? "empty" : `question-${state.airedAt ?? questionIndex}`} className={`po-concave-question ${phase === "idle" || phase === "intro" || !question ? "po-question-empty" : "po-question-bridge po-question-drive-in"}`} aria-label="שאלת המשחק">
       {phase === "timing" && <TimerDrive startedAt={state.timerStartedAt} duration={normalizeTimerDuration(state.timerDurationMs)} compact={compact} />}

@@ -275,3 +275,15 @@ body.po-iso-transparent{background:transparent!important}
 .po-iso-answer.is-locked{animation:po-iso-lock-breathe 2.6s ease-in-out infinite;will-change:transform}
 @keyframes po-iso-lock-breathe{0%,100%{transform:translateY(0) scale(1);box-shadow:0 0 0 .3cqh var(--po-silver),inset 0 0 1cqh var(--po-lock-breath-soft)}50%{transform:translateY(-.3cqh) scale(1.012);box-shadow:0 0 0 .3cqh var(--po-white),inset 0 0 2cqh var(--po-lock-breath-soft),0 0 1.6cqh var(--po-lock-breath-bright)}}
 @media(prefers-reduced-motion:reduce){.po-concave-window.is-locked,.po-concave-window.is-locked .po-concave-outline,.po-iso-answer.is-locked{animation:none}}
+
+/* Round-disabled windows stay visibly sealed, distinct from answers awaiting entry. */
+:root{--po-fog-base:color-mix(in oklab,var(--po-silver) 47%,var(--po-lock-depth));--po-fog-light:color-mix(in oklab,var(--po-white) 58%,transparent);--po-fog-shadow:color-mix(in oklab,var(--po-deep-blue) 28%,transparent);--po-fog-edge:color-mix(in oklab,var(--po-silver) 72%,var(--po-steel))}
+.po-concave-window.is-inactive{opacity:1;filter:none}
+.po-concave-window.is-inactive .po-concave-outline{color:var(--po-fog-edge);filter:drop-shadow(0 0 4px var(--po-lock-glow))}
+.po-concave-window.is-inactive .po-concave-highlight{stroke:var(--po-silver);opacity:.35}
+.po-window-fog{position:absolute;inset:0;z-index:5;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse at 30% 68%,var(--po-fog-light),transparent 65%),radial-gradient(ellipse at 78% 28%,var(--po-fog-light),transparent 62%),linear-gradient(145deg,var(--po-fog-base),var(--po-lock-depth));box-shadow:inset 0 0 5cqh var(--po-fog-shadow)}
+.po-window-fog::before{content:"";position:absolute;inset:0;opacity:.5;background-image:radial-gradient(ellipse,var(--po-fog-light) 0 12%,var(--po-fog-shadow) 16%,transparent 34%),radial-gradient(ellipse,var(--po-fog-light) 0 10%,transparent 30%);background-size:17px 23px,31px 37px;background-position:0 0,9px 12px}
+.po-window-fog::after{content:"";position:absolute;inset:-20%;background:linear-gradient(115deg,transparent 30%,var(--po-fog-light) 49%,transparent 68%);filter:blur(1.3cqh);opacity:.28;animation:po-fog-drift 8s ease-in-out infinite alternate}
+.po-fog-lock{position:absolute;top:64%;left:50%;transform:translate(-50%,-50%);width:4cqh;height:4cqh;color:var(--po-silver);opacity:.8;filter:drop-shadow(0 1px 2px var(--po-lock-depth))}
+@keyframes po-fog-drift{from{transform:translateX(-4%)}to{transform:translateX(4%)}}
+@media(prefers-reduced-motion:reduce){.po-window-fog::after{animation:none}}

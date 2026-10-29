@@ -1,8 +1,14 @@
 import { describe, expect, test } from 'vitest';
 import { previousStage, visibleAnswerCount } from '../presentation';
-import { normalizeTimerDuration, type GameState } from '../types';
+import { ANSWER_KEYS, activeAnswerKeys, normalizeTimerDuration, type GameState } from '../types';
 const base: GameState = {phase:'intro',questionIndex:0,questionOrder:[0,1,2,3,4,5,6],lockedAnswer:null,wipeSeq:0,timerStartedAt:null,updatedAt:1};
 describe('stage presentation',()=>{
+  test('questions 4 through 6 disable only lower window D',()=>{
+    for(const index of [3,4,5]) expect(ANSWER_KEYS.filter(key=>!activeAnswerKeys(index).includes(key))).toEqual(['D']);
+  });
+  test('question 7 disables lower windows C and D',()=>{
+    expect(ANSWER_KEYS.filter(key=>!activeAnswerKeys(6).includes(key))).toEqual(['C','D']);
+  });
   test('timer defaults to one minute',()=>{expect(normalizeTimerDuration()).toBe(60000)});
   test('explicit timer duration overrides the minute',()=>{expect(normalizeTimerDuration(90000)).toBe(90000)});
   test('question returns to answers-only without changing its airing',()=>{
