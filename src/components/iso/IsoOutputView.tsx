@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { IsoAnswerPane } from "./IsoAnswerPane";
+import { visibleAnswerCount } from "@/lib/pullover/presentation";
 // Clean ISO output graphics (lower third), mirroring what the game board shows (answers first, then question).
 import { activeAnswerKeys, answerOf, type AnswerKey, type Question } from "@/lib/pullover/types";
 import { layoutOf, type IsoSnapshot, type LayoutBox, type Plate } from "@/lib/iso/types";
@@ -25,6 +26,7 @@ const ROW_WIDTH: Record<number, number> = { 4: 92, 3: 78, 2: 58 };
 export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot | null; serverNow: () => number; compact?: boolean; layout?: LayoutBox }) {
   const st = snap?.game?.state, q = snap?.game?.question as Question | null | undefined;
   const phase = st?.phase ?? "idle", idx = st?.questionIndex ?? 0, keys = activeAnswerKeys(idx);
+  const visibleCount = visibleAnswerCount({phase, questionIndex:idx, answerEntryMode:st?.answerEntryMode ?? 'automatic', visibleAnswers:st?.visibleAnswers ?? 1});
   const placements = snap?.iso?.placements ?? {};
   const plates = snap?.plates ?? [];
   const revealed = REVEAL.has(phase), correct = (snap?.iso?.correct_answer ?? (revealed ? q?.correctAnswer : null)) as AnswerKey | null;
@@ -66,12 +68,12 @@ export function IsoOutputView({ snap, serverNow, layout }: { snap: IsoSnapshot |
           </div>
           {showA && (
             <div className="flex items-stretch gap-[1cqw]" style={{ width: `${width / 92 * 100}%` }}>
-              {keys.map((k) => {
+              {keys.map((k, index) => {
                 const scoredPlacements = revealed ? snap?.iso?.locked_snapshot ?? placements : placements;
                 const on = plates.filter((p) => scoredPlacements[p.id] === k);
                 const isCorrect = revealed && correct === k, isWrong = revealed && correct && correct !== k;
                 return (
-                  <IsoAnswerPane key={`${airing}:${k}`} letter={k} text={q ? answerOf(q, k) : ""} plates={on} numbers={Object.fromEntries(plates.map((p, i) => [p.id, i + 1]))} locked={locked} correct={isCorrect} wrong={Boolean(isWrong)} animateReveal={revealAiring === airing && airing !== null} />
+                  <div key={`${airing}:${k}`} className="min-w-0 flex-1" style={{visibility:index<visibleCount?"visible":"hidden"}}><IsoAnswerPane letter={k} text={q ? answerOf(q, k) : ""} plates={on} numbers={Object.fromEntries(plates.map((p, i) => [p.id, i + 1]))} locked={locked} correct={isCorrect} wrong={Boolean(isWrong)} animateReveal={revealAiring === airing && airing !== null} /></div>
                 );
               })}
             </div>
