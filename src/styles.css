@@ -253,10 +253,12 @@ body.po-iso-transparent{background:transparent!important}
 .po-lap-car{position:absolute;width:2.5cqh;height:4.6cqh;will-change:transform;z-index:3}
 .po-lap-car .po-car-body{box-shadow:0 0 0 1px var(--po-deep-blue),0 0 8px var(--po-cyan)}
 
-/* Slow white edge breathing, never pulsing answer text or recording layers. */
-:root{--po-lock-breath-soft:color-mix(in oklab,var(--po-white) 12%,transparent);--po-lock-breath-bright:color-mix(in oklab,var(--po-white) 42%,transparent)}
-.po-concave-window.is-locked .po-concave-outline{animation:po-lock-edge-breathe 3.4s ease-in-out infinite}
-@keyframes po-lock-edge-breathe{0%,100%{filter:drop-shadow(0 0 2px var(--po-lock-breath-soft));color:var(--po-silver)}50%{filter:drop-shadow(0 0 5px var(--po-lock-breath-bright)) drop-shadow(0 0 12px var(--po-lock-breath-soft));color:var(--po-white)}}
-.po-iso-answer.is-locked{animation:po-iso-lock-breathe 3.4s ease-in-out infinite}
-@keyframes po-iso-lock-breathe{0%,100%{box-shadow:0 0 0 .3cqh var(--po-silver),inset 0 0 1cqh var(--po-lock-breath-soft)}50%{box-shadow:0 0 0 .3cqh var(--po-white),inset 0 0 1.6cqh var(--po-lock-breath-soft),0 0 1cqh var(--po-lock-breath-bright)}}
-@media(prefers-reduced-motion:reduce){.po-concave-window.is-locked .po-concave-outline,.po-iso-answer.is-locked{animation:none}}
+/* White edge breathing with gentle motion after lock; never pulses answer text or recording layers. */
+:root{--po-lock-breath-soft:color-mix(in oklab,var(--po-white) 18%,transparent);--po-lock-breath-bright:color-mix(in oklab,var(--po-white) 60%,transparent)}
+.po-concave-window.is-locked{animation:po-lock-drift 2.6s ease-in-out infinite;will-change:transform}
+@keyframes po-lock-drift{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-.35cqh) scale(1.012)}}
+.po-concave-window.is-locked .po-concave-outline{animation:po-lock-edge-breathe 2.6s ease-in-out infinite}
+@keyframes po-lock-edge-breathe{0%,100%{filter:drop-shadow(0 0 2px var(--po-lock-breath-soft));color:var(--po-silver)}50%{filter:drop-shadow(0 0 7px var(--po-lock-breath-bright)) drop-shadow(0 0 18px var(--po-lock-breath-soft));color:var(--po-white)}}
+.po-iso-answer.is-locked{animation:po-iso-lock-breathe 2.6s ease-in-out infinite;will-change:transform}
+@keyframes po-iso-lock-breathe{0%,100%{transform:translateY(0) scale(1);box-shadow:0 0 0 .3cqh var(--po-silver),inset 0 0 1cqh var(--po-lock-breath-soft)}50%{transform:translateY(-.3cqh) scale(1.012);box-shadow:0 0 0 .3cqh var(--po-white),inset 0 0 2cqh var(--po-lock-breath-soft),0 0 1.6cqh var(--po-lock-breath-bright)}}
+@media(prefers-reduced-motion:reduce){.po-concave-window.is-locked,.po-concave-window.is-locked .po-concave-outline,.po-iso-answer.is-locked{animation:none}}
