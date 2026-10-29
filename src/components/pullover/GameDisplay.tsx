@@ -1,4 +1,5 @@
 // Game board: answers go up first (windshield wipe-in), then the question band.
+import remoteAsset from "@/assets/car-remote.png.asset.json";
 import { visibleAnswerCount } from "@/lib/pullover/presentation";
 import { AnswerLane } from "./AnswerLane";
 import { useEffect,useState,useId,useRef } from "react";
@@ -7,6 +8,7 @@ interface GameDisplayProps{state:GameState;question:Question|undefined;total:num
 export function GameDisplay({ state, question, compact = false }: GameDisplayProps) {
   const { phase, wipeSeq, questionIndex } = state;
   if (phase === "transition") return <StopTransition compact={compact} />;
+  if (phase === "progress" && questionIndex >= 6) return <FinalRemote />;
   if (phase === "progress") return <ProgressScreen completed={questionIndex + 1} compact={compact} />;
   if (phase === "idle" && questionIndex === 0) {
     if ((state.openingStep ?? 0) === 1) return <OpeningRoad compact={compact} />;
@@ -117,4 +119,8 @@ function LogoIdle({compact}:{compact:boolean}){
       <path d={frame} pathLength={100} className="po-frame-run is-cyan"/>
       <path d={frame} pathLength={100} className="po-frame-run is-dots"/>
     </svg></div></div>;
+}
+
+function FinalRemote(){
+  return <div className="po-stop-transition po-logo-idle relative h-full w-full overflow-hidden"><BroadcastLights/><div className="po-logo-sparkles pointer-events-none absolute inset-0">{Array.from({length:14},(_,i)=><i key={i} style={{left:`${8+(i*53)%84}%`,top:`${12+(i*37)%70}%`,animationDelay:`${(i*0.43)%3}s`}}/>)}</div><div className="po-final-remote po-logo-breathe"><img src={remoteAsset.url} alt="שלט הרכב" draggable={false}/></div></div>;
 }
