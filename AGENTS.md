@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- The game timer car and trail share one measured perimeter path around the question; presentation derives progress from the existing timer timestamps and never triggers or changes authoritative lock timing.
 - Answer entry visibility is optional presentation state in the authoritative local store; backward navigation is pre-lock only and never reverses ISO snapshots or elimination events. Shared ISO presentation fields travel with plain versioned state, not critical events.
 - Pair imports use a separate persisted pack, never the test warehouse; retain all reserves with their round, allow partial packs (empty rounds stay -1, invalid questions are skipped, never repaired), and refresh merges in place without changing already-aired slots. Private bank reads require the existing ISO game-role key server-side before using the shared export secret.
 - Bank export calls target the bank's final custom domain and follow redirects manually to known hosts only, because fetch drops the Authorization header on cross-origin redirects.

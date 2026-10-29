@@ -244,3 +244,9 @@ body.po-iso-transparent{background:transparent!important}
 .po-iso-answer.is-locked{box-shadow:0 0 0 .3cqh var(--po-lock-edge),inset 0 0 2cqh var(--po-lock-glow)}
 .po-lock-scan{background:repeating-linear-gradient(135deg,transparent 0 16px,var(--po-lock-glow) 16px 17px);background-size:auto;animation:none;opacity:.35}
 .po-lock-symbol{width:1.15em;height:1.15em;color:var(--po-lock-edge);flex-shrink:0}
+:root{--po-timer-trail:var(--po-red);--po-timer-trail-glow:color-mix(in oklab,var(--po-red) 45%,transparent)}
+.po-question-lap{position:absolute;inset:-1.5cqh -1.5cqh;z-index:2}
+.po-lap-svg{position:absolute;inset:0;overflow:visible}
+.po-lap-trail{fill:none;stroke:var(--po-timer-trail);stroke-width:4;stroke-linecap:round;filter:drop-shadow(0 0 4px var(--po-timer-trail-glow))}
+.po-lap-car{position:absolute;width:2.5cqh;height:4.6cqh;will-change:transform;z-index:3}
+.po-lap-car .po-car-body{box-shadow:0 0 0 1px var(--po-deep-blue),0 0 8px var(--po-cyan)}

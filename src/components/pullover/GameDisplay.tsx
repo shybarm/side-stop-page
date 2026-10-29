@@ -1,7 +1,7 @@
 // Game board: answers go up first (windshield wipe-in), then the question band.
 import { visibleAnswerCount } from "@/lib/pullover/presentation";
 import { AnswerLane } from "./AnswerLane";
-import { useEffect,useState,useId } from "react";
+import { useEffect,useState,useId,useRef } from "react";
 import { ANSWER_KEYS,activeAnswerKeys,answerOf,TIMER_DURATION_MS,type AnswerKey,type GameState,type Question } from "@/lib/pullover/types";
 interface GameDisplayProps{state:GameState;question:Question|undefined;total:number;compact?:boolean}
 export function GameDisplay({ state, question, compact = false }: GameDisplayProps) {
@@ -13,12 +13,12 @@ export function GameDisplay({ state, question, compact = false }: GameDisplayPro
   const count = visibleAnswerCount(state);
   return <div dir="rtl" className={["po-stage po-tv-stage po-breathe po-concave-board relative h-full w-full overflow-hidden", phase === "locked" ? "po-whole-board-locked" : "", compact ? "is-compact" : ""].join(" ")}>
     <BroadcastLights />
-    {phase === "timing" && <TimerDrive startedAt={state.timerStartedAt} compact={compact} />}
     {phase === "locked" && <div className="po-lock-overlay pointer-events-none absolute inset-0 z-20" />}
     <div className="po-concave-grid">
       {ANSWER_KEYS.map((key, index) => <AnswerLane key={key} letter={key} text={question && active.includes(key) ? answerOf(question, key) : ""} phase={phase} isCorrect={question?.correctAnswer === key} wipeSeq={wipeSeq} index={index} compact={compact} concave empty={!showAnswers || !active.includes(key) || index >= count} />)}
     </div>
     <section key={phase === "idle" || phase === "intro" ? "empty" : `question-${state.airedAt ?? questionIndex}`} className={`po-concave-question ${phase === "idle" || phase === "intro" || !question ? "po-question-empty" : "po-question-bridge po-question-drive-in"}`} aria-label="שאלת המשחק">
+      {phase === "timing" && <TimerDrive startedAt={state.timerStartedAt} compact={compact} />}
       {phase === "idle" || phase === "intro" || !question
         ? null
         : <h1 className="po-question-type">{question.text}</h1>}
@@ -62,4 +62,35 @@ function StopTransition({compact}:{compact:boolean}){
 }
 function ProgressScreen({completed,compact}:{completed:number;compact:boolean}){const safe=Math.max(0,Math.min(completed,7));const pct=safe/7*100;return <div dir="rtl" className="po-progress-show relative h-full w-full overflow-hidden "><div className="po-progress-rays absolute inset-0"/><div className="po-progress-floor absolute inset-x-0 bottom-0 h-[34%]"/><div className={["absolute inset-x-0 z-20 text-center",compact?"top-[11%]":"top-[9%]"].join(" ")}><div className="po-progress-brand"><ShowMark compact={compact}/></div><div className={["font-black text-white/70",compact?"mt-1 text-[5px]":"mt-3 text-lg tracking-[.5em]"].join(" ")}>הדרך אל הרכב</div></div><div className="absolute left-[8%] right-[8%] top-[57%] z-30"><div className="po-progress-track relative"><div className="po-progress-energy absolute inset-y-0 left-0" style={{width:`${pct}%`}}/>{Array.from({length:7},(_,i)=>{const done=i<safe,current=i===safe-1;return <div key={i} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{left:`${i/6*100}%`}}><div className={["po-progress-node flex items-center justify-center font-black",compact?"h-5 w-5 text-[7px]":"h-16 w-16 text-2xl",done?"done":"",current?"current":""].join(" ")}><span>{i+1}</span></div></div>})}</div></div>{!compact&&<div className="absolute inset-x-0 bottom-[8%] z-30 text-center"><div className="po-score-burst inline-flex items-center gap-5 px-10 py-4"><strong className="text-5xl">{safe}</strong><div className="text-right"><div className="text-xl font-black">מתוך 7</div><div className="text-sm font-bold tracking-[.16em] text-white/70">{safe>=7?"הרכב שלכם":`עוד ${7-safe} לרכב`}</div></div></div></div>}</div>}
 
-function TimerDrive({startedAt}:{startedAt:number|null;compact:boolean}){const[progress,setProgress]=useState(0);useEffect(()=>{if(!startedAt){setProgress(0);return}let raf=0;const tick=()=>{setProgress(Math.max(0,Math.min(1,(Date.now()-startedAt)/TIMER_DURATION_MS)));raf=window.requestAnimationFrame(tick)};tick();return()=>window.cancelAnimationFrame(raf)},[startedAt]);const bottom=progress*(100-9);return <div className="po-game-timer pointer-events-none absolute inset-0 z-40"><div className="po-road-axis absolute inset-y-0 left-1/2 -translate-x-1/2"><div className="po-road-dashes absolute inset-y-0 left-1/2 -translate-x-1/2"/></div><div className="po-game-timer-car absolute left-1/2 -translate-x-1/2" style={{bottom:`${bottom}%`}}><div className="relative" style={{aspectRatio:"1 / 1.9"}}><div className="po-car-body absolute inset-0"/><div className="po-car-glass absolute inset-x-[18%] top-[16%] h-[26%]"/><div className="po-car-glass absolute inset-x-[18%] bottom-[16%] h-[20%]"/><div className="po-car-lights absolute inset-x-[-30%] -top-[55%] h-[70%]"/></div></div></div>}
+function TimerDrive({startedAt}:{startedAt:number|null;compact:boolean}){
+  const container=useRef<HTMLDivElement>(null);
+  const path=useRef<SVGPathElement>(null);
+  const [size,setSize]=useState({width:0,height:0});
+  const [frame,setFrame]=useState({progress:0,x:0,y:0,angle:90});
+  useEffect(()=>{
+    const el=container.current;if(!el)return;
+    const observer=new ResizeObserver(([entry])=>{if(entry)setSize({width:entry.contentRect.width,height:entry.contentRect.height})});
+    observer.observe(el);return()=>observer.disconnect();
+  },[]);
+  const {width:w,height:h}=size;
+  const r=Math.min(22,h/4,w/8);
+  const d=w&&h?`M ${w/2} 0 H ${w-r} Q ${w} 0 ${w} ${r} V ${h-r} Q ${w} ${h} ${w-r} ${h} H ${r} Q 0 ${h} 0 ${h-r} V ${r} Q 0 0 ${r} 0 Z`:'';
+  useEffect(()=>{
+    if(startedAt===null||!d)return;
+    let raf=0;
+    const tick=()=>{
+      const el=path.current;if(!el)return;
+      const progress=Math.max(0,Math.min(1,(Date.now()-startedAt)/TIMER_DURATION_MS));
+      const length=el.getTotalLength();const distance=progress*length;
+      const point=el.getPointAtLength(distance);
+      const ahead=el.getPointAtLength((distance+1)%length);
+      setFrame({progress,x:point.x,y:point.y,angle:Math.atan2(ahead.y-point.y,ahead.x-point.x)*180/Math.PI+90});
+      raf=requestAnimationFrame(tick);
+    };
+    tick();return()=>cancelAnimationFrame(raf);
+  },[startedAt,d]);
+  return <div ref={container} className="po-question-lap pointer-events-none" aria-hidden="true">
+    {d&&<><svg width={w} height={h} className="po-lap-svg"><path ref={path} d={d} pathLength={1} className="po-lap-trail" strokeDasharray={`${frame.progress} 1`} /></svg>
+    <div className="po-lap-car" style={{left:frame.x,top:frame.y,transform:`translate(-50%,-50%) rotate(${frame.angle}deg)`}}><div className="relative h-full w-full"><div className="po-car-body absolute inset-0"/><div className="po-car-glass absolute inset-x-[18%] top-[16%] h-[26%]"/><div className="po-car-glass absolute inset-x-[18%] bottom-[16%] h-[20%]"/></div></div></>}
+  </div>;
+}
