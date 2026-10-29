@@ -99,7 +99,7 @@ export function mergeRefresh(old: { questions: Question[] }, fresh: ConvertedPac
   return { ...fresh, questions, order, missing };
 }
 
-export const optionKeys = (q: Question) => ANSWER_KEYS.filter(k => [q.answerA, q.answerB, q.answerC, q.answerD][ANSWER_KEYS.indexOf(k)].trim());
+export const optionKeys = (q: Question) => ANSWER_KEYS.filter(k => [q.answerA, q.answerB, q.answerC, q.answerD][ANSWER_KEYS.indexOf(k)]?.trim());
 
 /** A bank question can serve a slot when its round matches and it has at least that many options (extra ones are dropped by the operator). */
 export function bankFitsSlot(q: Question, slot: number) {
@@ -112,5 +112,5 @@ export function dropOptions(q: Question, remove: string[]): Question | null {
   const kept = optionKeys(q).filter(k => !remove.includes(k));
   const texts = kept.map(k => [q.answerA, q.answerB, q.answerC, q.answerD][ANSWER_KEYS.indexOf(k)]);
   return { ...q, answerA: texts[0] ?? "", answerB: texts[1] ?? "", answerC: texts[2] ?? "", answerD: texts[3] ?? "",
-    correctAnswer: ANSWER_KEYS[kept.indexOf(q.correctAnswer)] };
+    correctAnswer: ANSWER_KEYS[kept.indexOf(q.correctAnswer)] ?? q.correctAnswer };
 }
