@@ -52,7 +52,7 @@ export function BankQuestionBrowser() {
   return <>
     <Button variant="outline" onClick={show} disabled={state.questionIndex >= 6} className="h-12 w-full border-po-steel-line bg-po-asphalt text-po-white"><Database size={17}/>מאגר הבודקת — שאלה חלופית</Button>
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent dir="rtl" className="flex max-h-[88dvh] w-[calc(100%-2rem)] max-w-3xl flex-col overflow-hidden border-po-steel-line bg-po-asphalt-deep text-po-white">
+      <DialogContent dir="rtl" onKeyDown={e => e.stopPropagation()} className="flex max-h-[88dvh] w-[calc(100%-2rem)] max-w-3xl flex-col overflow-hidden border-po-steel-line bg-po-asphalt-deep text-po-white">
         <DialogTitle className="pe-5">מאגר הבודקת · החלפת השאלה הבאה</DialogTitle>
         <DialogDescription className="text-po-white/60">סבב {state.questionIndex + 2} · {answerCountForQuestion(state.questionIndex + 1)} תשובות · השאלה שבאוויר נשארת ללא שינוי</DialogDescription>
         <div className="flex flex-wrap gap-2">

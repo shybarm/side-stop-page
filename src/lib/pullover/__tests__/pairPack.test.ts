@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { convertPairPack, mergeRefresh, questionFitsSlot } from '../pairPack';
+import { convertGeneralBank, convertPairPack, mergeRefresh, prepareBankReplacement, questionFitsSlot } from '../pairPack';
 import { getWarehouse, getQuestions, setPairPack, setQuestions } from '../questionStore';
 const pair = { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', name: 'זוג בדיקה' };
 const row = (round: number, id: string) => ({ id, round, text: `שאלה ${id}`, category: null, options: Array.from({length: round < 4 ? 4 : round < 7 ? 3 : 2}, (_, i) => ({text:`תשובה ${i}`,correct:i===0})) });
@@ -28,5 +28,44 @@ describe('assigned pair packs', () => {
    expect(m.questions[m.order[0]!]?.text).toBe('שאלה reserve');
    expect(m.questions[m.order[6]!]?.id).toBe('bank_late');
    expect(m.missing).toEqual([]);
+ });
+});
+
+describe('general bank replacements', () => {
+ const pack = () => convertPairPack(input);
+ test('accepts a question from another pair without changing already-aired slots', () => {
+   const p = pack(), incoming = convertPairPack({pair:{...pair,name:'זוג אחר'},questions:[row(2,'other')]}).questions[0];
+   if (!incoming) throw Error('fixture');
+   const result = prepareBankReplacement(p.questions,p.order,0,incoming);
+   expect(result?.questions[result.order[1] ?? -1]?.id).toBe('bank_other');
+   expect(result?.questions[result.order[0] ?? -1]).toEqual(p.questions[p.order[0] ?? -1]);
+   expect(result?.order.slice(2)).toEqual(p.order.slice(2));
+ });
+ test('rejects an already-aired question', () => {
+   const p=pack(), q=p.questions[p.order[0] ?? -1]; if(!q)throw Error('fixture');
+   expect(prepareBankReplacement(p.questions,p.order,0,{...q,round:2})).toBeNull();
+ });
+ test('preserves imported selection when refreshing the current pair', () => {
+   const p=pack(), q=convertPairPack({pair,questions:[row(2,'outside')]}).questions[0];if(!q)throw Error('fixture');
+   const imported=prepareBankReplacement(p.questions,p.order,0,q);if(!imported)throw Error('fixture');
+   const refreshed=mergeRefresh(imported,p,imported.order,0);
+   expect(refreshed.questions[refreshed.order[1] ?? -1]?.id).toBe('bank_outside');
+ });
+ test('general bank includes questions without a pair or round', () => {
+   const {round,...q}=row(1,'unassigned');
+   expect(convertGeneralBank({questions:[q]}).questions[0]?.round).toBeUndefined();
+   expect(convertGeneralBank({questions:[q]}).questions[0]?.id).toBe('bank_unassigned');
+ });
+ test('never truncates four options for a three-answer round', () => {
+   const p=pack(), {round,...raw}=row(1,'four');const q=convertGeneralBank({questions:[raw]}).questions[0];if(!q)throw Error('fixture');
+   expect(prepareBankReplacement(p.questions,p.order,2,q)).toBeNull();
+ });
+ test('skips general questions without a single correct answer', () => {
+   const q=row(1,'invalid');
+   expect(convertGeneralBank({questions:[{...q,options:q.options.map(o=>({...o,correct:false}))}]}).skipped).toBe(1);
+ });
+ test('no replacement beyond final round', () => {
+   const p=pack(),q=p.questions[0];if(!q)throw Error('fixture');
+   expect(prepareBankReplacement(p.questions,p.order,6,q)).toBeNull();
  });
 });
