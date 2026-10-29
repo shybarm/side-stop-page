@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { LockKeyhole } from "lucide-react";
 import { HE_LETTER, type AnswerKey } from "@/lib/pullover/types";
 import type { Plate } from "@/lib/iso/types";
 
@@ -17,7 +18,7 @@ export function IsoAnswerPane({ letter, text, plates, numbers = {}, locked, corr
         <div className="po-shield-glare" />
       </div>
       <div className={`po-iso-answer-content ${wrong ? wiping ? "is-clearing" : "is-cleared" : ""}`}>
-        <span className="po-shield-letter po-iso-answer-letter">{HE_LETTER[letter]}</span>
+        <span className="po-shield-letter po-iso-answer-letter flex items-center gap-2">{HE_LETTER[letter]}{locked && !correct && !wrong && <LockKeyhole aria-label="נעול" className="po-lock-symbol" />}</span>
         <div className="po-iso-answer-text"><span>{text}</span></div>
       </div>
       <div className="po-shield-wiper-clip">

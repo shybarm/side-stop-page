@@ -1,4 +1,5 @@
 import { HE_LETTER, type AnswerKey, type GamePhase } from "@/lib/pullover/types";
+import { LockKeyhole } from "lucide-react";
 
 
 export interface AnswerLaneProps {
@@ -49,7 +50,7 @@ export function AnswerLane({ letter, text, phase, isCorrect, wipeSeq, compact = 
         <div className={["po-shield-clean", wrong ? "po-wipe-out" : "po-wipe-in"].join(" ")} style={{ animationDelay: wrong ? "0s" : delay }}>
           <div className="po-shield-tint" />
           {locked && <div className="po-lock-scan absolute inset-0" />}
-          <span className={["po-shield-letter absolute font-black", compact ? "right-1.5 top-0.5 text-[6px]" : "right-5 top-3 text-base"].join(" ")}>{HE_LETTER[letter]}</span>
+          <span className={["po-shield-letter absolute font-black flex items-center gap-2", compact ? "right-1.5 top-0.5 text-[6px]" : "right-5 top-3 text-base"].join(" ")}>{HE_LETTER[letter]}{locked && <LockKeyhole aria-label="נעול" className="po-lock-symbol" />}</span>
           <div className={["relative z-10 flex h-full w-full items-center justify-center text-center", compact ? "px-2" : "px-10"].join(" ")}>
             <span className={["po-shield-text font-black leading-tight", compact ? "text-[9px]" : "text-3xl md:text-4xl xl:text-5xl"].join(" ")}>{text}</span>
           </div>
