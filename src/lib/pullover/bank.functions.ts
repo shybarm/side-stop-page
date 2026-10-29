@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { heartbeat } from "@/lib/iso/iso.functions";
-import { convertPairPack } from "./pairPack";
+import { convertPairPack, convertGeneralBank } from "./pairPack";
 
 // The bank's lovable.app address redirects to its custom domain, and fetch drops the Authorization
 // header on cross-origin redirects — so call the final domain directly and only follow known hosts.
@@ -24,6 +24,7 @@ async function call(qs: string) {
   if (r.status >= 300 && r.status < 400) throw new Error("יותר מדי הפניות בכתובת המאגר");
   if (r.status === 404) throw new Error("כתובת הייצוא עדיין לא פורסמה באתר הבודקת");
   if (r.status === 401) throw new Error("המפתח לא תואם בין שני האתרים");
+  if (r.status === 400 && qs === "?bank=1") throw new Error("הגישה למחסן הכללי עדיין לא הופעלה בבודקת. בינתיים אפשר לבחור שאלות של זוג אחר.");
   if (!r.ok) throw new Error(`המאגר החזיר שגיאה ${r.status}`);
   if (!r.headers.get("content-type")?.includes("application/json")) throw new Error("כתובת הייצוא עדיין לא זמינה באתר הבודקת");
   return r.json();
@@ -41,4 +42,11 @@ export const loadPair = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await heartbeat({ data: { code: data.code, key: data.key } });
     return convertPairPack(await call(`?contestant=${data.id}`));
+  });
+
+export const loadGeneralBank = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => auth.parse(d))
+  .handler(async ({ data }) => {
+    await heartbeat({ data });
+    return convertGeneralBank(await call("?bank=1"));
   });

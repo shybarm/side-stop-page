@@ -6,6 +6,7 @@ import { mergeRefresh, type ConvertedPack } from "@/lib/pullover/pairPack";
 import { getPairPack, setPairPack, usePairPack } from "@/lib/pullover/questionStore";
 import { publisher } from "@/lib/iso/publisher";
 import { Button } from "@/components/ui/button";
+import { BankQuestionBrowser } from "./BankQuestionBrowser";
 
 function describe(p: ConvertedPack) {
   const parts = [`${p.questions.length} שאלות`];
@@ -54,12 +55,13 @@ export function PairLoader() {
     <div className="space-y-2 rounded-xl border border-po-steel-line bg-po-asphalt p-3 text-xs">
       <div className="text-po-white/50">שאלות המשחק</div>
       <div className="font-bold">{pack ? `${pack.pairName} · ${pack.questions.length} שאלות מהמאגר` : "מחסן הבדיקות"}</div>
-      {pack && (pack.missing?.length ?? 0) > 0 && <div className="text-po-amber">חסרות שאלות לסבבים {pack.missing!.join(", ")} — הוסיפו בבודקת ולחצו "רענן"</div>}
+      {pack && (pack.missing?.length ?? 0) > 0 && <div className="text-po-amber">חסרות שאלות לסבבים {pack.missing?.join(", ")} — הוסיפו בבודקת ולחצו "רענן"</div>}
       <div className="flex gap-2">
         <Button variant="outline" disabled={busy} onClick={open} className="h-9 flex-1 border-po-amber bg-transparent font-black text-po-amber">{busy ? "טוען…" : "טען זוג מהמאגר"}</Button>
-        {pack && <Button variant="outline" disabled={busy} onClick={refresh} className="h-9 bg-transparent px-3 font-bold">רענן</Button>}
+        {pack?.pairId && <Button variant="outline" disabled={busy} onClick={refresh} className="h-9 bg-transparent px-3 font-bold">רענן</Button>}
         {pack && <Button variant="outline" disabled={busy} onClick={() => { if (confirm("לחזור למחסן הבדיקות? זה מתחיל משחק חדש.")) { setPairPack(null); actions.newGame(""); } }} className="h-9 bg-transparent px-2">מחסן בדיקות</Button>}
       </div>
+      <BankQuestionBrowser/>
       {pairs && (
         <div className="max-h-56 space-y-1 overflow-y-auto">
           {pairs.length === 0 && <div className="text-po-white/50">אין זוגות פעילים</div>}
