@@ -10,7 +10,7 @@ export interface Question { id:string; text:string; answerA:string; answerB:stri
 export type GamePhase = "idle" | "intro" | "answers" | "timing" | "locked" | "wiping" | "revealed" | "transition" | "progress";
 export interface GameState { phase:GamePhase; questionIndex:number; questionOrder:number[]; lockedAnswer:AnswerKey|null; wipeSeq:number; timerStartedAt:number|null; updatedAt:number; /** Unique per airing of a question (load/next/jump), so re-running a slot is a new ISO question. */ airedAt?:number|null; /** Name of the team currently playing (session name). */ teamName?:string; /** Changes on every "new game" so all screens (incl. ISO plates) restart. */ gameId?:number; }
 export const NEW_GAME_PASSWORD = "1234";
-export interface GameState { timerDurationMs?: number; answerEntryMode?: 'automatic' | 'manual'; visibleAnswers?: number; /** Opening sequence before question 1: 0 logo, 1 road start, 2 first-question sign. */ openingStep?: 0|1|2; }
+export interface GameState { timerDurationMs?: number; answerEntryMode?: 'automatic' | 'manual'; visibleAnswers?: number; /** Opening sequence before question 1: 0 logo, 1 progress tree. */ openingStep?: 0|1; }
 export const DEFAULT_QUESTION_ORDER=[0,1,2,3,4,5,6];
 export const PHASE_LABEL:Record<GamePhase,string>={idle:"ממתין",intro:"תשובות באוויר",answers:"שאלה באוויר",timing:"זמן רץ",locked:"הלוח נעול",wiping:"חשיפת תשובה",revealed:"תשובה נחשפה",transition:"מעבר",progress:"התקדמות לרכב"};
 export function answerOf(q:Question,key:AnswerKey):string{return key==="A"?q.answerA:key==="B"?q.answerB:key==="C"?q.answerC:q.answerD;}
