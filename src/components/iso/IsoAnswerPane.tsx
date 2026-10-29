@@ -12,12 +12,12 @@ export function IsoAnswerPane({ letter, text, plates, numbers = {}, locked, corr
   return (
     <div data-iso-answer={letter} className={`po-iso-answer relative min-w-0 flex-1 ${correct ? "is-correct" : wrong ? "is-wrong" : locked ? "is-locked" : ""}`}>
       <div className="po-shield-glass" />
-      <div className={`po-shield-clean ${wrong ? wiping ? "po-wipe-out" : "po-iso-cleared" : "po-wipe-in"}`}>
+      <div className={`po-shield-clean ${correct || wrong ? "po-result-visible" : "po-wipe-in"}`}>
         <div className="po-shield-tint" />
         {locked && !correct && !wrong && <div data-iso-lock-scan className="po-lock-scan absolute inset-0" />}
         <div className="po-shield-glare" />
       </div>
-      <div className={`po-iso-answer-content ${wrong ? wiping ? "is-clearing" : "is-cleared" : ""}`}>
+      <div className="po-iso-answer-content">
         {locked && !correct && !wrong && <span className="po-shield-letter po-iso-answer-letter"><LockKeyhole aria-label="נעול" className="po-lock-symbol" /></span>}
         <div className="po-iso-answer-text"><span>{text}</span></div>
       </div>
