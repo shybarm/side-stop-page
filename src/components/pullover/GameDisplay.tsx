@@ -8,6 +8,12 @@ export function GameDisplay({ state, question, compact = false }: GameDisplayPro
   const { phase, wipeSeq, questionIndex } = state;
   if (phase === "transition") return <StopTransition compact={compact} />;
   if (phase === "progress") return <ProgressScreen completed={questionIndex + 1} compact={compact} />;
+  if (phase === "idle" && questionIndex === 0) {
+    const step = state.openingStep ?? 0;
+    if (step === 1) return <ProgressScreen completed={0} current={0} compact={compact} />;
+    if (step === 2) return <FirstQuestionSign compact={compact} />;
+    return <LogoIdle compact={compact} />;
+  }
   const active = activeAnswerKeys(questionIndex);
   const showAnswers = Boolean(question) && phase !== "idle";
   const count = visibleAnswerCount(state);
@@ -60,7 +66,7 @@ function StopTransition({compact}:{compact:boolean}){
     </svg>
   </div></div>;
 }
-function ProgressScreen({completed,compact}:{completed:number;compact:boolean}){const safe=Math.max(0,Math.min(completed,7));const pct=safe/7*100;return <div dir="rtl" className="po-progress-show relative h-full w-full overflow-hidden "><div className="po-progress-rays absolute inset-0"/><div className="po-progress-floor absolute inset-x-0 bottom-0 h-[34%]"/><div className={["absolute inset-x-0 z-20 text-center",compact?"top-[11%]":"top-[9%]"].join(" ")}><div className="po-progress-brand"><ShowMark compact={compact}/></div><div className={["font-black text-white/70",compact?"mt-1 text-[5px]":"mt-3 text-lg tracking-[.5em]"].join(" ")}>הדרך אל הרכב</div></div><div className="absolute left-[8%] right-[8%] top-[57%] z-30"><div className="po-progress-track relative"><div className="po-progress-energy absolute inset-y-0 left-0" style={{width:`${pct}%`}}/>{Array.from({length:7},(_,i)=>{const done=i<safe,current=i===safe-1;return <div key={i} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{left:`${i/6*100}%`}}><div className={["po-progress-node flex items-center justify-center font-black",compact?"h-5 w-5 text-[7px]":"h-16 w-16 text-2xl",done?"done":"",current?"current":""].join(" ")}><span>{i+1}</span></div></div>})}</div></div>{!compact&&<div className="absolute inset-x-0 bottom-[8%] z-30 text-center"><div className="po-score-burst inline-flex items-center gap-5 px-10 py-4"><strong className="text-5xl">{safe}</strong><div className="text-right"><div className="text-xl font-black">מתוך 7</div><div className="text-sm font-bold tracking-[.16em] text-white/70">{safe>=7?"הרכב שלכם":`עוד ${7-safe} לרכב`}</div></div></div></div>}</div>}
+function ProgressScreen({completed,compact,current:cur}:{completed:number;compact:boolean;current?:number}){const safe=Math.max(0,Math.min(completed,7));const pct=safe/7*100;return <div dir="rtl" className="po-progress-show relative h-full w-full overflow-hidden "><div className="po-progress-rays absolute inset-0"/><div className="po-progress-floor absolute inset-x-0 bottom-0 h-[34%]"/><div className={["absolute inset-x-0 z-20 text-center",compact?"top-[11%]":"top-[9%]"].join(" ")}><div className="po-progress-brand"><ShowMark compact={compact}/></div><div className={["font-black text-white/70",compact?"mt-1 text-[5px]":"mt-3 text-lg tracking-[.5em]"].join(" ")}>הדרך אל הרכב</div></div><div className="absolute left-[8%] right-[8%] top-[57%] z-30"><div className="po-progress-track relative"><div className="po-progress-energy absolute inset-y-0 left-0" style={{width:`${pct}%`}}/>{Array.from({length:7},(_,i)=>{const done=i<safe,current=i===(cur??safe-1);return <div key={i} className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{left:`${i/6*100}%`}}><div className={["po-progress-node flex items-center justify-center font-black",compact?"h-5 w-5 text-[7px]":"h-16 w-16 text-2xl",done?"done":"",current?"current":""].join(" ")}><span>{i+1}</span></div></div>})}</div></div></div>}
 
 function TimerDrive({startedAt,duration}:{startedAt:number|null;duration:number;compact:boolean}){
   const container=useRef<HTMLDivElement>(null);
@@ -93,4 +99,17 @@ function TimerDrive({startedAt,duration}:{startedAt:number|null;duration:number;
     {d&&<><svg width={w} height={h} className="po-lap-svg"><path ref={path} d={d} pathLength={1} className="po-lap-trail" strokeDasharray={`${frame.progress} 1`} /></svg>
     <div className="po-lap-car" style={{left:frame.x,top:frame.y,transform:`translate(-50%,-50%) rotate(${frame.angle}deg)`}}><div className="relative h-full w-full"><div className="po-car-body absolute inset-0"/><div className="po-car-glass absolute inset-x-[18%] top-[16%] h-[26%]"/><div className="po-car-glass absolute inset-x-[18%] bottom-[16%] h-[20%]"/></div></div></>}
   </div>;
+}
+
+function LogoIdle({compact}:{compact:boolean}){
+  const [wipe,setWipe]=useState(0);
+  useEffect(()=>{const t=setInterval(()=>setWipe(w=>w+1),20000);return()=>clearInterval(t)},[]);
+  const [wiping,setWiping]=useState(false);
+  useEffect(()=>{if(!wipe)return;setWiping(true);const t=setTimeout(()=>setWiping(false),2300);return()=>clearTimeout(t)},[wipe]);
+  if(wiping)return <StopTransition key={wipe} compact={compact}/>;
+  return <div className="po-stop-transition po-logo-idle relative h-full w-full overflow-hidden"><BroadcastLights/><div className="po-logo-sparkles pointer-events-none absolute inset-0">{Array.from({length:14},(_,i)=><i key={i} style={{left:`${8+(i*53)%84}%`,top:`${12+(i*37)%70}%`,animationDelay:`${(i*0.43)%3}s`}}/>)}</div><div className="po-wiping-brand po-logo-breathe"><ShowMark compact={compact}/></div></div>;
+}
+function FirstQuestionSign({compact}:{compact:boolean}){
+  useEffect(()=>{if(compact)return;try{const C=window.AudioContext||(window as unknown as {webkitAudioContext:typeof AudioContext}).webkitAudioContext;const ctx=new C();const o=ctx.createOscillator(),g=ctx.createGain();o.type="square";o.frequency.value=1000;g.gain.setValueAtTime(0.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.25,ctx.currentTime+0.02);g.gain.setValueAtTime(0.25,ctx.currentTime+0.55);g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.6);o.connect(g).connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.62);setTimeout(()=>ctx.close(),1000)}catch{/* audio optional */}},[compact]);
+  return <div dir="rtl" className="po-stop-transition relative flex h-full w-full items-center justify-center overflow-hidden"><BroadcastLights/><div className="po-first-sign relative z-10 text-center"><span>לשאלה הראשונה</span></div></div>;
 }
