@@ -19,8 +19,8 @@ export interface AnswerLaneProps {
 /**
  * One answer = one car windshield.
  * Entry: the parked wiper sweeps up and back, and the clean glass with the answer is revealed
- * behind the blade (the whole pane, not just the text). Reveal: wrong panes are wiped clean
- * away by the same wiper; the correct pane stays put and lights up.
+ * behind the blade (the whole pane, not just the text). Reveal keeps every answer readable
+ * on a green or red result surface.
  * The blade here is the virtual stand-in for the physical wiper motor (see hardwareAdapter).
  */
 export function AnswerLane({ letter, text, phase, isCorrect, wipeSeq, compact = false, empty = false, index = 0, concave = false }: AnswerLaneProps) {
@@ -47,7 +47,7 @@ export function AnswerLane({ letter, text, phase, isCorrect, wipeSeq, compact = 
       <div className={concave ? "po-concave-surface" : "contents"} style={concave ? { clipPath: `url(#${clipId})` } : undefined}>
       <div className="po-shield-glass" />
       {!empty && (
-        <div className={["po-shield-clean", wrong ? "po-wipe-out" : "po-wipe-in"].join(" ")} style={{ animationDelay: wrong ? "0s" : delay }}>
+        <div className={["po-shield-clean", result ? "po-result-visible" : "po-wipe-in"].join(" ")} style={{ animationDelay: result ? "0s" : delay }}>
           <div className="po-shield-tint" />
           {locked && <div className="po-lock-scan absolute inset-0" />}
           {locked && <span className={["po-shield-letter absolute", compact ? "right-1.5 top-0.5 text-[6px]" : "right-5 top-3 text-base"].join(" ")}><LockKeyhole aria-label="נעול" className="po-lock-symbol" /></span>}

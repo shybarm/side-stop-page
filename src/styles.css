@@ -198,6 +198,19 @@ body.po-iso-transparent{background:transparent!important}
 .po-road-dashes{animation:po-dash-move 1.2s linear infinite}
 @media(prefers-reduced-motion:reduce){.po-progress-rays,.po-road-dashes{animation:none}}
 
+/* Result surfaces stay fully visible; color carries the verdict, not disappearing text. */
+:root{--po-result-correct-surface:#125e36;--po-result-wrong-surface:#8b242b;--po-result-text:var(--po-white);--po-result-text-shadow:0 2px 3px color-mix(in oklab,var(--po-asphalt-deep) 65%,transparent)}
+.po-shield.is-correct .po-shield-glass,.po-shield.is-correct .po-shield-clean,.po-iso-answer.is-correct .po-shield-glass,.po-iso-answer.is-correct .po-shield-clean{background:var(--po-result-correct-surface)}
+.po-shield.is-wrong .po-shield-glass,.po-shield.is-wrong .po-shield-clean,.po-iso-answer.is-wrong .po-shield-glass,.po-iso-answer.is-wrong .po-shield-clean{background:var(--po-result-wrong-surface)}
+.po-shield.is-correct .po-shield-tint,.po-shield.is-wrong .po-shield-tint,.po-iso-answer.is-correct .po-shield-tint,.po-iso-answer.is-wrong .po-shield-tint{background:none}
+.po-concave-window.is-correct .po-concave-outline{color:var(--po-green)}
+.po-concave-window.is-wrong .po-concave-outline{color:var(--po-red);opacity:1}
+.po-concave-window.is-correct .po-concave-highlight{stroke:var(--po-green)}
+.po-concave-window.is-wrong .po-concave-highlight{stroke:var(--po-red)}
+.po-iso-answer.is-wrong{box-shadow:0 0 0 .3cqh var(--po-red),0 0 1.4cqh color-mix(in oklab,var(--po-red) 25%,transparent)}
+.po-shield.is-correct .po-shield-text,.po-shield.is-wrong .po-shield-text,.po-iso-answer.is-correct .po-iso-answer-text,.po-iso-answer.is-wrong .po-iso-answer-text{color:var(--po-result-text)!important;text-shadow:var(--po-result-text-shadow)}
+.po-concave-window .po-shield-clean.po-result-visible,.po-iso-answer .po-shield-clean.po-result-visible,.po-shield-clean.po-result-visible{-webkit-mask-image:none;mask-image:none;animation:none;opacity:1;visibility:visible;transform:none}
+
 /* Question is the sole focal point within its reserved central band. */
 .po-concave-question h1,.po-concave-board.is-compact .po-concave-question h1{font-size:5.3cqh;line-height:1.18;max-height:17cqh;font-weight:900;letter-spacing:0;text-wrap:balance}
 .po-original-logo{background:transparent;box-shadow:none;border:0}
