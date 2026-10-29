@@ -11,6 +11,7 @@ export interface AnswerLaneProps {
   wipeSeq: number;
   compact?: boolean;
   empty?: boolean;
+  inactive?: boolean;
   /** lane order, used to stagger the entry wipe */
   index?: number;
   concave?: boolean;
@@ -23,11 +24,11 @@ export interface AnswerLaneProps {
  * on a green or red result surface.
  * The blade here is the virtual stand-in for the physical wiper motor (see hardwareAdapter).
  */
-export function AnswerLane({ letter, text, phase, isCorrect, wipeSeq, compact = false, empty = false, index = 0, concave = false }: AnswerLaneProps) {
+export function AnswerLane({ letter, text, phase, isCorrect, wipeSeq, compact = false, empty = false, inactive = false, index = 0, concave = false }: AnswerLaneProps) {
   const locked = phase === "locked";
   const result = phase === "wiping" || phase === "revealed";
   const wrong = result && !isCorrect;
-  const state = empty ? "is-empty" : result ? (isCorrect ? "is-correct" : "is-wrong") : locked ? "is-locked" : "";
+  const state = inactive ? "is-inactive" : empty ? "is-empty" : result ? (isCorrect ? "is-correct" : "is-wrong") : locked ? "is-locked" : "";
   const delay = `${index * 0.16}s`;
   // Blade runs on entry and again when this pane is wiped away; it rests parked otherwise.
   const bladeKey = empty ? "parked" : wrong ? `out-${wipeSeq}` : "in";
@@ -46,7 +47,8 @@ export function AnswerLane({ letter, text, phase, isCorrect, wipeSeq, compact = 
       </svg>}
       <div className={concave ? "po-concave-surface" : "contents"} style={concave ? { clipPath: `url(#${clipId})` } : undefined}>
       <div className="po-shield-glass" />
-      {!empty && (
+      {inactive && <div className="po-window-fog" aria-label="חלון לא פעיל — נעול"><LockKeyhole className="po-fog-lock" aria-hidden="true" /></div>}
+      {!empty && !inactive && (
         <div className={["po-shield-clean", result ? "po-result-visible" : "po-wipe-in"].join(" ")} style={{ animationDelay: result ? "0s" : delay }}>
           <div className="po-shield-tint" />
           {locked && <div className="po-lock-scan absolute inset-0" />}
