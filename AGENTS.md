@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Architecture rules
+- Remote full-board output uses the existing ISO output-role snapshot as a read-only projection into GameDisplay; it never initializes the local game store, publishes state, or triggers timer locks, preserving one authoritative control computer.
 - The game timer car and trail share one measured perimeter path around the question; local state carries the selected duration to the lock timeout and ISO publisher, and the question-entry actions reset it to the default. Presentation derives progress from that duration and the timer timestamp and never triggers lock.
 - Answer entry visibility is optional presentation state in the authoritative local store; backward navigation is pre-lock only and never reverses ISO snapshots or elimination events. Shared ISO presentation fields travel with plain versioned state, not critical events.
 - Pair imports use a separate persisted pack, never the test warehouse; retain all reserves with their round, allow partial packs (empty rounds stay -1, invalid questions are skipped, never repaired), and refresh merges in place without changing already-aired slots. Private bank reads require the existing ISO game-role key server-side before using the shared export secret.
