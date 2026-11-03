@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ControlRouteImport } from './routes/control'
 import { Route as GameRouteImport } from './routes/game'
+import { Route as GameRemoteRouteImport } from './routes/game-remote'
 import { Route as IsoControlRouteImport } from './routes/iso-control'
 import { Route as IsoOutputRouteImport } from './routes/iso-output'
 import { Route as QuestionsRouteImport } from './routes/questions'
@@ -29,6 +30,11 @@ const ControlRoute = ControlRouteImport.update({
 const GameRoute = GameRouteImport.update({
   id: '/game',
   path: '/game',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GameRemoteRoute = GameRemoteRouteImport.update({
+  id: '/game-remote',
+  path: '/game-remote',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IsoControlRoute = IsoControlRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/control': typeof ControlRoute
   '/game': typeof GameRoute
+  '/game-remote': typeof GameRemoteRoute
   '/iso-control': typeof IsoControlRoute
   '/iso-output': typeof IsoOutputRoute
   '/questions': typeof QuestionsRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/control': typeof ControlRoute
   '/game': typeof GameRoute
+  '/game-remote': typeof GameRemoteRoute
   '/iso-control': typeof IsoControlRoute
   '/iso-output': typeof IsoOutputRoute
   '/questions': typeof QuestionsRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/control': typeof ControlRoute
   '/game': typeof GameRoute
+  '/game-remote': typeof GameRemoteRoute
   '/iso-control': typeof IsoControlRoute
   '/iso-output': typeof IsoOutputRoute
   '/questions': typeof QuestionsRoute
@@ -75,14 +84,28 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/control' | '/game' | '/iso-control' | '/iso-output' | '/questions'
+    | '/'
+    | '/control'
+    | '/game'
+    | '/game-remote'
+    | '/iso-control'
+    | '/iso-output'
+    | '/questions'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/control' | '/game' | '/iso-control' | '/iso-output' | '/questions'
+  to:
+    | '/'
+    | '/control'
+    | '/game'
+    | '/game-remote'
+    | '/iso-control'
+    | '/iso-output'
+    | '/questions'
   id:
     | '__root__'
     | '/'
     | '/control'
     | '/game'
+    | '/game-remote'
     | '/iso-control'
     | '/iso-output'
     | '/questions'
@@ -92,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ControlRoute: typeof ControlRoute
   GameRoute: typeof GameRoute
+  GameRemoteRoute: typeof GameRemoteRoute
   IsoControlRoute: typeof IsoControlRoute
   IsoOutputRoute: typeof IsoOutputRoute
   QuestionsRoute: typeof QuestionsRoute
@@ -118,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/game'
       fullPath: '/game'
       preLoaderRoute: typeof GameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/game-remote': {
+      id: '/game-remote'
+      path: '/game-remote'
+      fullPath: '/game-remote'
+      preLoaderRoute: typeof GameRemoteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/iso-control': {
@@ -148,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ControlRoute: ControlRoute,
   GameRoute: GameRoute,
+  GameRemoteRoute: GameRemoteRoute,
   IsoControlRoute: IsoControlRoute,
   IsoOutputRoute: IsoOutputRoute,
   QuestionsRoute: QuestionsRoute,
