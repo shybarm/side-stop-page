@@ -1,5 +1,5 @@
 # Roadmap
-- [ ] Add a read-only full game screen link using the existing shared session; verify control-to-display across isolated browser contexts.
+- [x] Add a read-only full game screen link using the existing shared session; verified opening, question, timer, lock, reveal and reload across isolated browser contexts, with 16 passing regression tests.
 - [x] Add bank browser, cross-pair next-question import, validation and refresh preservation; 23 tests pass, live pair list and unavailable-general-bank notice verified.
 - [ ] Enable general/unassigned-question export in Bodeket (`?bank=1` returning `{ questions: [{ id, text, category, options: [{ text, correct }] }] }`), then verify live import; blocked because this chat cannot modify/publish the source project. No compatible round-2 questions were available in live pairs for end-to-end import verification.
 - [x] Add pre-lock previous-stage controls, automatic/manual answer entry and smooth left-to-center question arrival; 14 tests pass, control/game flow verified at full-size and compact, live ISO 1→2→3→4 visibility and question rewind read back successfully
