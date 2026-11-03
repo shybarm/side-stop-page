@@ -55,7 +55,7 @@ function save() {
 /** Identity of one airing of a question: slot + question id + airing time. */
 export const keyOf = (s: GameState) => { const q = questionForSlot(s); return q ? `${s.questionIndex}:${q.id}:${s.airedAt ?? 0}` : null; };
 function published(s: GameState): PublishedGameState {
-  return { phase: s.phase, questionIndex: s.questionIndex, answerEntryMode: s.answerEntryMode ?? 'automatic', visibleAnswers: s.visibleAnswers ?? 1, teamName: s.teamName ?? "", gameId: s.gameId ?? null, timerStartedAtServer: s.timerStartedAt ? s.timerStartedAt + offset : null, timerDurationMs: normalizeTimerDuration(s.timerDurationMs), updatedAt: s.updatedAt };
+  return { phase: s.phase, openingStep: s.openingStep ?? 0, wipeSeq: s.wipeSeq, airedAt: s.airedAt, questionIndex: s.questionIndex, answerEntryMode: s.answerEntryMode ?? 'automatic', visibleAnswers: s.visibleAnswers ?? 1, teamName: s.teamName ?? "", gameId: s.gameId ?? null, timerStartedAtServer: s.timerStartedAt ? s.timerStartedAt + offset : null, timerDurationMs: normalizeTimerDuration(s.timerDurationMs), updatedAt: s.updatedAt };
 }
 function onState() {
   const s = getGameState(), key = keyOf(s), q = questionForSlot(s);
