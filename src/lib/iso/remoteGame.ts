@@ -15,8 +15,8 @@ export function remoteGame(snap: IsoSnapshot, clockOffset: number): { state: Gam
     lockedAnswer: null, wipeSeq: s.wipeSeq ?? 0,
     timerStartedAt: s.timerStartedAtServer == null ? null : s.timerStartedAtServer - clockOffset,
     timerDurationMs: normalizeTimerDuration(s.timerDurationMs), updatedAt: s.updatedAt ?? 0,
-    airedAt: s.airedAt, openingStep: s.openingStep ?? 0,
+    airedAt: s.airedAt ?? null, openingStep: s.openingStep ?? 0,
     answerEntryMode: s.answerEntryMode ?? 'automatic', visibleAnswers: s.visibleAnswers ?? 1,
-    teamName: s.teamName, gameId: s.gameId ?? undefined,
+    teamName: s.teamName ?? '', ...(s.gameId == null ? {} : { gameId: s.gameId }),
   } };
 }
