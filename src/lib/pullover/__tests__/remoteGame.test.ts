@@ -4,6 +4,13 @@ import type { IsoSnapshot } from '../../iso/types';
 
 const snapshot = (state: NonNullable<IsoSnapshot['game']>['state']): IsoSnapshot => ({ game: { state, question: { id: 'q4', text: 'Question', answerA: 'One', answerB: 'Two', answerC: 'Three', answerD: '', correctAnswer: 'C' }, question_key: '3:q4:123' }, plates: [], iso: null });
 describe('read-only remote game screen', () => {
+  it('renders questions while the output role hides the correct answer, then uses the revealed answer', () => {
+    const snap = snapshot({ phase: 'answers' });
+    if (snap.game?.question) delete snap.game.question.correctAnswer;
+    expect(remoteGame(snap, 0).question?.text).toBe('Question');
+    snap.iso = { question_key: '3:q4:123', pool: [], placements: {}, locked_snapshot: {}, correct_answer: 'C', resolved: true, version: 1 };
+    expect(remoteGame(snap, 0).question?.correctAnswer).toBe('C');
+  });
   it('preserves the control computer phase and selected question', () => {
     const game = remoteGame(snapshot({ phase: 'locked', questionIndex: 3, wipeSeq: 2, airedAt: 123 }), 0);
     expect(game.state.phase).toBe('locked'); expect(game.state.questionIndex).toBe(3);

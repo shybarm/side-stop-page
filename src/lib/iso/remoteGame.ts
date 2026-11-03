@@ -6,8 +6,9 @@ import type { IsoSnapshot } from './types';
 export function remoteGame(snap: IsoSnapshot, clockOffset: number): { state: GameState; question: Question | undefined } {
   const s = snap.game?.state ?? {};
   const q = snap.game?.question;
-  const question: Question | undefined = q?.id && q.text && q.correctAnswer ? {
-    id: q.id, text: q.text, correctAnswer: q.correctAnswer,
+  // Output-role snapshots deliberately hide the answer until the authoritative reveal.
+  const question: Question | undefined = q?.id && q.text ? {
+    id: q.id, text: q.text, correctAnswer: q.correctAnswer ?? snap.iso?.correct_answer ?? 'A',
     answerA: q.answerA ?? '', answerB: q.answerB ?? '', answerC: q.answerC ?? '', answerD: q.answerD ?? '',
   } : undefined;
   return { question, state: {
